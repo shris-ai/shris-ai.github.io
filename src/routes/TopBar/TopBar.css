@@ -1,0 +1,141 @@
+/* src/routes/TopBar.css */
+.navbar {
+    background-color: #F6F6DF;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    width: 100vw;
+    z-index: 10;
+    top: 0;
+    color: slateblue;
+}
+
+.navbar-container {
+    /*
+    max-width: 6xl;
+    margin: 0 auto;
+    padding: 0 1rem; 
+    border-bottom-style: outset;
+    */
+
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+    border-bottom-style: outset;
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.navbar-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 4rem;
+
+    padding: 0 max(1rem, 5%); /* Responsive padding */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.topbar-title{
+    margin-left: 10px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-shrink: 0; /* Prevent title from shrinking */
+}
+
+.icons{
+    vertical-align: middle;
+    margin-right: 5px;
+
+    width: clamp(1.5rem, 2vw, 2rem);
+    height: auto;
+    flex-shrink: 0;
+}
+
+.navbar-title {
+    /*
+    font-size: 1.25rem; 
+    font-weight: bold;
+    margin-left: 10px;
+    */
+
+    font-family: 'AnaktoriaRegular', sans-serif;
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    font-weight: bold;
+    white-space: nowrap;
+    flex-shrink: 0;
+    color: slateblue;
+}
+
+.hindi{
+    font-family: 'AnaktoriaRegular', sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    margin-left: 0px;
+
+    font-size: clamp(0.9rem, 2.3vw, 1.15rem);
+    flex-shrink: 0;
+}
+
+.navbar-links {
+    display: flex;
+    /* gap: 2rem;  */
+
+    gap: clamp(0.5rem, 2vw, 2rem);
+    align-items: center;
+    flex-shrink: 1; /* Allow links to shrink if needed */
+}
+
+.navbar-link {
+    color: slateblue; /* Gray-500 */
+    text-decoration: none;
+
+    font-size: clamp(0.875rem, 2vw, 1rem);
+    white-space: nowrap;
+}
+
+.navbar-link:hover {
+    color: #1f2937; /* Gray-900 */
+}
+
+
+/* Mobile responsiveness */
+@media screen and (max-width: 768px) {
+    .navbar-content {
+        padding: 0 0.75rem;
+    }
+
+    .navbar-links {
+        gap: 0.75rem;
+    }
+}
+
+/* Small mobile devices */
+@media screen and (max-width: 480px) {
+    .navbar {
+        width: 100vw; /* Ensure full width on mobile */
+    }
+
+    .navbar-content {
+        height: 3.5rem;
+        padding: 0 0.5rem;
+    }
+
+    .navbar-links {
+        gap: 0.5rem;
+    }
+
+    .navbar-title {
+        font-size: 0.9rem;
+    }
+
+    .hindi {
+        font-size: 0.85rem;
+    }
+}
+
+
+
+
+
+
