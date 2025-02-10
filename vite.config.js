@@ -4,5 +4,6 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
     plugins: [react()],
-    assetsInclude: ['**/*.html'], // Add this line
+    assetsInclude: ['**/*.html'], 
+    base: '/shris-ai.github.io/',
 });
