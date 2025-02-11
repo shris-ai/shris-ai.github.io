@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
     plugins: [react()],
-    base: '/shris-ai.github.io/',  // Ensure correct base path for GitHub Pages
+    base: './',  // Ensure correct base path for GitHub Pages
     server: {
         host: true,
         open: true,
