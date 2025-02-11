@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
     plugins: [react()],
-    base: './', // Use relative path instead of /shris-ai.github.io/
+    base: '/shris-ai.github.io/',  // Ensure correct base path for GitHub Pages
     server: {
         host: true,
         open: true,
@@ -11,10 +11,20 @@ export default defineConfig({
           usePolling: true,
         },
     },
+    resolve: {
+        alias: {
+            '@': '/src',
+        },
+        extensions: ['.js', '.jsx'],  // Ensure JSX files are resolved
+    },
+    esbuild: {
+        loader: "jsx",
+        include: /src\/.*\.jsx?$/,  // Ensure JSX files are processed
+    },
     build: {
         outDir: "dist",
         assetsDir: "assets",
-        emptyOutDir: true, // Clears the output directory before building
+        emptyOutDir: true,
         rollupOptions: {
           input: "index.html", 
         },
