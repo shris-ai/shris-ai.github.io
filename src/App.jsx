@@ -1,6 +1,7 @@
 // src/App.jsx
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+//import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { HashRouter as Router, Route, Routes } from 'react-router-dom';
 import TopBar from './routes/TopBar/TopBar';
 import Home from './routes/Home/Home';
 import PaperDiveIns from './routes/PaperDiveIns/PaperDiveIns';
