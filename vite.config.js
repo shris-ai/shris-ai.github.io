@@ -6,4 +6,12 @@ export default defineConfig({
     plugins: [react()],
     assetsInclude: ['**/*.html'], 
     base: '/shris-ai.github.io/',
+    server: {
+        host: true,
+        open: true,
+        watch: {
+          usePolling: true,
+        },
+      },
+      
 });

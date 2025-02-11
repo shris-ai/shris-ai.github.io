@@ -1,7 +1,10 @@
    // src/routes/Home.jsx
    import React from 'react';
    import './Home.css';
-   
+   import imgBio  from './../../assets/bio-image.jpg';
+   import iconEmail from './../../assets/email_icon.svg';
+   import iconGithub from './../../assets/github_icon.svg';
+   import iconLinkedin from './../../assets/linkedin_icon.svg';
 
    export default function Home() {
 
@@ -9,7 +12,9 @@
         <div className='about-container'>
             <div className='bio'>
                 <div className='bio-img'>
-                    <img src='\src\assets\bio-image.jpg'style={{ width: '200px', height: 'auto' }} />
+                    {/*<img src='\public\assets\bio-image.jpg'style={{ width: '200px', height: 'auto' }} />*/}
+                    <img src={imgBio} style={{ width: '200px', height: 'auto' }} />
+                    {/*<img src="/assets/bio-image.jpg" alt="Bio" style={{ width: '200px', height: 'auto' }}/>*/}
                 </div>
                 <div className='bio-text'>
                 <p>
@@ -29,13 +34,13 @@
     <p><strong>Join me in discussing AI, math, and literature—I’d love to hear your thoughts!</strong></p>
     <div className="social-links">
         <a href="mailto:shristigautam13@gmail.com" className="email" target="_blank">
-            <img src="\src\assets\email_icon.svg" alt="Email" width="30" height="30"/>
+            <img src={iconEmail} alt="Email" width="30" height="30"/>
         </a>
         <a href="https://www.linkedin.com/in/shristigautam/" target="_blank">
-           <img src="\src\assets\linkedin_icon.svg" alt="LinkedIn" width="30" height="30"/>
+           <img src={iconLinkedin} alt="LinkedIn" width="30" height="30"/>
         </a>
         <a href="https://github.com/shris-ai" className="github" target="_blank">
-            <img src="\src\assets\github_icon.svg" alt="Github" width="30" height="30"/>
+            <img src={iconGithub} alt="Github" width="30" height="30"/>
         </a>
     </div>
                 </div>
