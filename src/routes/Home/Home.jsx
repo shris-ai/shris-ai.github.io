@@ -18,7 +18,7 @@
                 </div>
                 <div className='bio-text'>
                 <p>
-                    I’m an AI enthusiast, aspiring researcher, and lifelong learner, constantly exploring the latest advancements in artificial intelligence and experimenting with cutting-edge technologies. With over <strong>8.5 years of experience</strong> working with MNCs, a Big Four consulting firm, and a Google subsidiary, I specialize in developing enterprise-wide AI solutions, ensuring they are scalable, efficient, and impactful.
+                    I’m an AI Solution Architect, aspiring researcher, and lifelong learner, constantly exploring the latest advancements in artificial intelligence and experimenting with cutting-edge technologies. With over <strong>8.5 years of experience</strong> working with MNCs, a Big Four consulting firm, and a Google subsidiary, I specialize in developing enterprise-wide AI solutions, ensuring they are scalable, efficient, and impactful.
                 </p>
                 <p> 
                     My academic journey began with a <strong>B.Tech in Electrical Engineering</strong>, and I’m currently pursuing a <strong>Master’s in Artificial Intelligence</strong> from IU, Germany. Mathematics has always been my greatest fascination—my favorite subject and a lens through which I wish to understand the world. I dream of breaking down every phenomenon into equations, uncovering the elegant logic behind nature, technology, and human behavior.
