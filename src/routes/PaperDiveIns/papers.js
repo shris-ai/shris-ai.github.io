@@ -5,9 +5,9 @@ const papers = [
         description:"This paper introduces CoRAG, a dynamic retrieval framework that improves retrieval-augmented generation (RAG) by iteratively refining retrieval steps based on the reasoning process. Unlike traditional RAG models that use a fixed retrieval step, CoRAG trains LLMs to retrieve and reason step by step, leading to better multi-hop question answering. It achieves state-of-the-art performance on the KILT benchmark by optimizing retrieval strategies through rejection sampling, tree search, and best-of-N decoding. CoRAG enhances retrieval efficiency, reduces errors, and adapts dynamically to query complexity, making it a significant advancement in knowledge-intensive tasks.",
         tags: ["AI", "Machine Learning", "NLP"],
         markdownFile: "", // Path to the Markdown file
-        htmlFile:"./src/routes/PaperDiveIns/papers/CoRAG_Chain_of_Retrieval_Augmented_Generation.html",
+        htmlFile:"./src/routes/PaperDiveIns/papers/CoRAG_Chain of Retrieval Augmented Generation.html",
         img: {
-            src:"./src/routes/PaperDiveIns/papers/assets/CoRAG_Chain_of_Retrieval_Augmented_Generation_0.png",
+            src:"./src/routes/PaperDiveIns/papers/assets/CoRAG_Chain of Retrieval Augmented Generation_0.png",
             alt:"Research Paper"
         }
     },
@@ -40,7 +40,7 @@ const papers = [
         markdownFile: "", // Path to the Markdown file
         htmlFile:"./src/routes/PaperDiveIns/papers/DSPY_Compiling Declarative Language Model Calls into Self-Improving Pipelines.html",
         img: {
-            src:"/src/routes/PaperDiveIns/papers/assets/DSPY_Compiling Declarative Language Model Calls into Self-Improving Pipelines_0.png",
+            src:"./src/routes/PaperDiveIns/papers/assets/DSPY_Compiling Declarative Language Model Calls into Self-Improving Pipelines_0.png",
             alt:"DSPY_Compiling Declarative Language Model Calls into Self-Improving Pipelines"
         }
     }
