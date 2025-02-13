@@ -1,0 +1,464 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><blockquote>
+<p>The ML community is actively exploring techniques for prompting language models (LMs) and creating pipelines to solve complex tasks. However, existing LM pipelines often rely on hard-coded prompt templates, which are tedious and error-prone. To address this, <strong>DSPy</strong> introduces a systematic approach by representing LM pipelines as <strong>text transformation graphs</strong> (imperative computational graphs with declarative modules for LMs).</p>
+</blockquote>
+<h3 id="key-features-of-dspy">Key Features of DSPy:</h3>
+<ol>
+<li>
+<p><strong>Parameterization:</strong> Modules in DSPy can learn to apply prompting, fine-tuning, augmentation, and reasoning techniques.</p>
+</li>
+<li>
+<p><strong>Optimization Compiler:</strong> DSPy includes a compiler that optimizes pipelines to maximize specific metrics by generating and collecting demonstrations.</p>
+</li>
+<li>
+<p><strong>Expressive Pipelines:</strong> DSPy enables succinct programs to express and optimize pipelines for tasks like:</p>
+</li>
+</ol>
+<ul>
+<li>
+<p>Solving math word problems.</p>
+</li>
+<li>
+<p>Multi-hop retrieval.</p>
+</li>
+<li>
+<p>Complex question answering.</p>
+</li>
+<li>
+<p>Controlling agent loops.</p>
+</li>
+</ul>
+<ol start="4">
+<li>
+<p><strong>Performance:</strong> Within minutes of compiling, DSPy produces pipelines that outperform standard few-shot prompting and expert-crafted demonstrations, even for smaller models like T5 and Llama2-13b-chat.</p>
+</li>
+<li>
+<p><strong>Scalability:</strong> DSPy programs for smaller, open-source models are competitive with solutions that rely on larger, proprietary LMs like GPT-3.5.</p>
+</li>
+</ol>
+<h3 id="impact">Impact:</h3>
+<p>DSPy simplifies and enhances the development of LM pipelines, making them more efficient and accessible. It is available for use at <a href="https://github.com/stanfordnlp/dspy">GitHub: stanfordnlp/dspy</a>.</p>
+<h1 id="introduction">Introduction</h1>
+<p>Interest is growing in multi-stage pipelines that decompose complex tasks into manageable LM calls, improving performance. However, the reliance on hard-coded prompt templates—long, handcrafted strings created via trial and error—makes existing LM pipelines brittle and unscalable. These templates are sensitive to task requirements and fail to generalize across LMs, domains, or inputs. To address these limitations, DSPy introduces a novel programming model for building and optimizing LM pipelines systematically.</p>
+<h2 id="dspy-a-systematic-approach-to-lm-pipelines">DSPy: A Systematic Approach to LM Pipelines</h2>
+<h3 id="key-innovations">Key Innovations:</h3>
+<ol>
+<li>
+<p><strong>Modular Programming:</strong> DSPy abstracts LM pipelines as <strong>text transformation graphs</strong>, akin to neural network architectures. It replaces string-based prompting (e.g., Chain of Thought or ReAct techniques) with <strong>declarative modules</strong> that include natural-language-typed signatures. Each module represents a task-specific transformation, such as summarization or question answering.</p>
+</li>
+<li>
+<p><strong>Parameterization:</strong> Modules are parameterized to learn their desired behavior by iteratively bootstrapping demonstrations within the pipeline. This eliminates manual prompt tuning.</p>
+</li>
+<li>
+<p><strong>Define-by-Run Graphs:</strong> Inspired by PyTorch (Paszke et al., 2019), DSPy uses computational graphs to flexibly connect modules through logical control flows, such as <code>if</code> statements, loops, and exceptions.</p>
+</li>
+<li>
+<p><strong>Compiler Optimization:</strong> DSPy introduces a <strong>compiler</strong> that optimizes pipelines to improve quality or cost.</p>
+<ul>
+<li>
+<p>Inputs: The program, a few labeled training inputs, and a validation metric.</p>
+</li>
+<li>
+<p>Outputs: Optimized few-shot prompts or finetuned small LMs for pipeline steps.</p>
+</li>
+<li>
+<p><strong>Teleprompters:</strong> General-purpose optimization strategies that guide how modules learn from data, ensuring high-quality compositions of prompting, finetuning, reasoning, and augmentation.</p>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="case-studies-and-performance">Case Studies and Performance:</h3>
+<h4 id="evaluation-domains">Evaluation Domains:</h4>
+<ol>
+<li>
+<p><strong>Math Word Problems:</strong> Using the GSM8K dataset (Cobbe et al., 2021).</p>
+</li>
+<li>
+<p><strong>Multi-Hop Question Answering:</strong> Using HotPotQA (Yang et al., 2018).</p>
+</li>
+<li>
+<p><strong>Techniques Explored:</strong></p>
+<ul>
+<li>
+<p>Chain of Thought (CoT) prompting.</p>
+</li>
+<li>
+<p>Multi-chain reflection.</p>
+</li>
+<li>
+<p>Multi-hop retrieval.</p>
+</li>
+<li>
+<p>Retrieval-augmented question answering.</p>
+</li>
+<li>
+<p>Agent loops.</p>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="results">Results:</h4>
+<ul>
+<li>
+<p>DSPy programs outperform systems relying on hand-crafted prompts.</p>
+</li>
+<li>
+<p>Smaller, efficient LMs like Llama2-13b are used effectively, eliminating the need for large, proprietary models.</p>
+</li>
+<li>
+<p>DSPy enables the creation of succinct programs that bootstrap state-of-the-art multi-stage NLP systems.</p>
+</li>
+</ul>
+<h3 id="contributions">Contributions:</h3>
+<ol>
+<li>
+<p>A systematic abstraction for building LM pipelines, replacing brittle prompt engineering.</p>
+</li>
+<li>
+<p>An automated compiler that optimizes LM pipelines for both performance and efficiency.</p>
+</li>
+<li>
+<p>Empirical evidence showing DSPy outperforms hand-crafted solutions while utilizing smaller LMs.</p>
+</li>
+</ol>
+<p>DSPy is publicly available at <a href="https://github.com/stanfordnlp/dspy">GitHub</a>.</p>
+<h3 id="dspy-vs.-related-frameworks">DSPy vs. Related Frameworks</h3>
+<p>LMQL (Beurer-Kellner et al., 2023) is a query language that constrains LM outputs to logical constraints (e.g., structured lists or calculator-friendly formats). While DSPy focuses on optimizing LM pipelines for specific metrics, LMQL’s controlled decoding could be integrated into advanced DSPy modules.</p>
+<p>Discrete optimization and reinforcement learning (RL) approaches have been explored for finding effective prompts for single LM calls (Guo et al., 2023; Pryzant et al., 2023; Huang et al., 2022; Yang et al., 2023). DSPy generalizes these methods by offering a rich framework for optimizing multi-stage pipelines using declarative signatures. DSPy teleprompters can employ optimization techniques like cross-validation, RL with LM feedback (Hu et al., 2023; Zhao et al., 2023a; Shinn et al., 2023), or Bayesian hyperparameter optimization (Bergstra et al., 2013; Akiba et al., 2019).</p>
+<h3 id="contribution-of-dspy">Contribution of DSPy</h3>
+<p>The paper introduces DSPy as a programming model that eliminates the reliance on hand-crafted prompt strings by enabling the construction of modular, high-level LM systems. The DSPy compiler bootstraps high-quality multi-stage demonstrations with constraints and optimizes pipelines, allowing for exploration of a rich design space. This approach builds on formative work by Bergstra et al. (2010; 2013), Paszke et al. (2019), and Wolf et al. (2020), showcasing empirical findings and benchmarks to demonstrate that DSPy can develop state-of-the-art LM systems using modular, programmatic abstractions instead of manual prompt engineering.</p>
+<h1 id="the-dspy-programming-model">The DSPy Programming Model</h1>
+<p><strong>DSPy</strong> is a programming model designed to treat large language models (LMs) as abstract text-generation devices, optimizing their usage within computational graphs. DSPy programs are written in Python and handle tasks by processing inputs (e.g., questions or documents) through a series of optimized steps to produce outputs (e.g., answers or summaries). The framework introduces three key abstractions: <strong>signatures</strong>, <strong>modules</strong>, and <strong>teleprompters</strong>, enabling modular, high-level LM programming.</p>
+<h4 id="language-model-integration"><strong>Language Model Integration</strong></h4>
+<ul>
+<li>
+<p>DSPy assumes access to one or more LMs, such as:</p>
+</li>
+<li>
+<p><strong>Promptable LMs</strong>: Capable of in-context learning (e.g., GPT-3.5 or Llama2-7b).</p>
+</li>
+<li>
+<p><strong>Finetunable LMs</strong>: Smaller models like T5-base.</p>
+</li>
+<li>
+<p>A default LM can be configured, and DSPy will optimize operations accordingly unless otherwise specified.</p>
+</li>
+</ul>
+<h4 id="key-abstractions-in-dspy"><strong>Key Abstractions in DSPy</strong></h4>
+<ol>
+<li><strong>Signatures</strong>:</li>
+</ol>
+<p>Signatures are natural-language typed function declarations that abstract the behavior of a task. Instead of writing hand-crafted prompts, signatures specify what needs to be done, not how it should be implemented.</p>
+<ol start="2">
+<li><strong>Modules</strong>:</li>
+</ol>
+<p>Modules in DSPy replace manual prompt engineering and can be composed into arbitrary pipelines. They encapsulate reusable logic and enable seamless integration of multiple LMs or task steps.</p>
+<ol start="3">
+<li><strong>Teleprompters</strong>:</li>
+</ol>
+<p>Teleprompters optimize modules within a pipeline to maximize performance metrics. They support techniques like cross-validation, reinforcement learning, or Bayesian hyperparameter optimization to enhance module behavior.</p>
+<h2 id="dspy-signatures">DSPy Signatures</h2>
+<ul>
+<li>
+<p>A signature is a tuple of <strong>input fields</strong>, <strong>output fields</strong>, and optional <strong>instructions</strong>.</p>
+</li>
+<li>
+<p>Example:</p>
+</li>
+</ul>
+<pre class=" language-python"><code class="prism  language-python">
+qa <span class="token operator">=</span> dspy<span class="token punctuation">.</span>Predict<span class="token punctuation">(</span><span class="token string">"question -&gt; answer"</span><span class="token punctuation">)</span>
+
+qa<span class="token punctuation">(</span>question<span class="token operator">=</span><span class="token string">"Where is Guaraní spoken?"</span><span class="token punctuation">)</span>
+
+<span class="token comment"># Output: Prediction(answer='Mainly in South America.')</span>
+
+</code></pre>
+<ul>
+<li>
+<p>Fields like <code>question</code> and <code>answer</code> have semantic roles inferred by DSPy, guiding how LMs interpret them using in-context learning.</p>
+</li>
+<li>
+<p>Signatures provide two key advantages:</p>
+</li>
+<li>
+<p><strong>Compilation into high-quality prompts or finetunes</strong>: Useful demonstration examples are bootstrapped for each signature.</p>
+</li>
+<li>
+<p><strong>Reduction of brittle string manipulation</strong>: Structured formatting and parsing logic are integrated into DSPy workflows.</p>
+</li>
+</ul>
+<h3 id="features-of-dspy-signatures"><strong>Features of DSPy Signatures</strong></h3>
+<ul>
+<li>
+<p><strong>Declarative Specification</strong>: Describes the transformation task (e.g., translating English to French) in shorthand, e.g., <code>english document -&gt; french translation</code>.</p>
+</li>
+<li>
+<p><strong>Flexible Implementation</strong>: DSPy automatically parses and expands shorthand into meaningful LM instructions, handling tasks like structured formatting and example bootstrapping.</p>
+</li>
+<li>
+<p><strong>Advanced Constraints</strong>: DSPy also supports explicit constraints on signatures, allowing developers to define more sophisticated behavior (see Appendix B for details).</p>
+</li>
+</ul>
+<h2 id="modules-in-dspy">Modules in DSPy</h2>
+<p>DSPy introduces <strong>signatures</strong> akin to type signatures in programming languages. These define interfaces and provide type-like hints on expected behavior. A <strong>module</strong> in DSPy implements a signature, such as the core <code>Predict</code> module. Modules store the following:</p>
+<ol>
+<li>
+<p>The specified signature.</p>
+</li>
+<li>
+<p>An optional language model (LM) to override the default LM.</p>
+</li>
+<li>
+<p>A list of demonstrations for prompting, initially empty.</p>
+</li>
+</ol>
+<p>Modules act as callable functions, taking keyword arguments (e.g., <code>question</code>), formatting a prompt using the signature and demonstrations, calling the LM, and parsing output fields. During <strong>compile mode</strong>, the module tracks input/output traces to assist with <strong>bootstrapping</strong>.</p>
+<p>DSPy includes sophisticated modules like:</p>
+<ul>
+<li>
+<p><strong>ChainOfThought</strong>: Breaks tasks into step-by-step reasoning.</p>
+</li>
+<li>
+<p><strong>ProgramOfThought</strong>, <strong>MultiChainComparison</strong>, and <strong>ReAct</strong>: Modularly implement prompting techniques from recent research (e.g., Wei et al. 2022, Yao et al. 2022).</p>
+</li>
+</ul>
+<p>These modules are interchangeable, meaning users can switch between them to implement the same signature. For example, replacing <code>Predict</code> with <code>ChainOfThought</code> in a pipeline results in a system that reasons step-by-step before generating an output. The implementation of such modules often takes only a few lines of code (e.g., 7 lines for <code>ChainOfThought</code>).</p>
+<h4 id="parameterizing-modules">Parameterizing Modules</h4>
+<p>DSPy modularizes prompting techniques by parameterizing modules with:</p>
+<ol>
+<li>
+<p>The specific LM to use (e.g., GPT-3.5 or Llama2-7b).</p>
+</li>
+<li>
+<p>Prompt instructions and string prefixes for signature fields.</p>
+</li>
+<li>
+<p>Demonstrations used as <strong>few-shot prompts</strong> (for frozen LMs) or as training data (for fine-tuning).</p>
+</li>
+</ol>
+<p>The focus is on generating and selecting <strong>useful demonstrations</strong> to systematically teach LM pipelines new behaviors. <strong>Bootstrapping</strong> these demonstrations improves performance and adaptability.</p>
+<h4 id="pipeline-composition">Pipeline Composition</h4>
+<p>DSPy enables pipelines to be built using a <strong>define-by-run interface</strong>, inspired by frameworks like PyTorch and Chainer. Users:</p>
+<ol>
+<li>
+<p>Declare required modules at initialization (e.g., retrieval, reasoning).</p>
+</li>
+<li>
+<p>Build pipelines by defining how these modules interact in the <code>forward</code> method.</p>
+</li>
+</ol>
+<p>For example, the following code snippet demonstrates a <strong>retrieval-augmented generation (RAG)</strong> system:</p>
+<pre class=" language-python"><code class="prism  language-python">
+<span class="token keyword">class</span>  <span class="token class-name">RAG</span><span class="token punctuation">(</span>dspy<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+  <span class="token keyword">def</span>  <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> num_passages<span class="token operator">=</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># Retrieval settings, default unless overridden.</span>
+    self<span class="token punctuation">.</span>retrieve <span class="token operator">=</span> dspy<span class="token punctuation">.</span>Retrieve<span class="token punctuation">(</span>k<span class="token operator">=</span>num_passages<span class="token punctuation">)</span>
+    <span class="token comment"># ChainOfThought for reasoning with "context, question -&gt; answer".</span>
+    self<span class="token punctuation">.</span>generate_answer <span class="token operator">=</span> dspy<span class="token punctuation">.</span>ChainOfThought<span class="token punctuation">(</span><span class="token string">"context, question -&gt; answer"</span><span class="token punctuation">)</span>
+
+  <span class="token keyword">def</span>  <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> question<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># Retrieve relevant passages for the question.</span>
+    context <span class="token operator">=</span> self<span class="token punctuation">.</span>retrieve<span class="token punctuation">(</span>question<span class="token punctuation">)</span><span class="token punctuation">.</span>passages
+    <span class="token comment"># Generate an answer using retrieved context and question.</span>
+    <span class="token keyword">return</span>  self<span class="token punctuation">.</span>generate_answer<span class="token punctuation">(</span>context<span class="token operator">=</span>context<span class="token punctuation">,</span> question<span class="token operator">=</span>question<span class="token punctuation">)</span>
+
+</code></pre>
+<p>The RAG system:</p>
+<ol>
+<li>
+<p>Retrieves relevant context for the question using <code>dspy.Retrieve</code>.</p>
+</li>
+<li>
+<p>Uses the <code>ChainOfThought</code> module to generate answers based on the context and question.</p>
+</li>
+</ol>
+<h4 id="modular-flexibility">Modular Flexibility</h4>
+<p>DSPy modules are highly flexible:</p>
+<ul>
+<li>
+<p>Replace <code>Predict</code> with <code>ChainOfThought</code> to enable step-by-step reasoning.</p>
+</li>
+<li>
+<p>Change the signature (e.g., <code>context, question -&gt; search query</code>) to modify the system’s behavior (e.g., generating search queries instead of answers).</p>
+</li>
+<li>
+<p>Built-in support for tools like <strong>ColBERTv2</strong>, <strong>Pyserini</strong>, and <strong>Pinecone retrievers</strong> for retrieval, and experimental tools like <code>dspy.SQL</code> (for SQL queries) and <code>dspy.PythonInterpreter</code> (for sandboxed Python execution).</p>
+</li>
+</ul>
+<h2 id="teleprompters-in-dspy">Teleprompters in DSPy</h2>
+<p>In DSPy, <strong>teleprompters</strong> serve as optimizers that automate the process of optimizing programs for specific pipelines. These teleprompters take a program, a training set, and a metric, and return an optimized version of the program. They typically employ <strong>gradient-free optimization strategies</strong> and are designed to work efficiently even with small training sets, which may contain only input examples and minimal labeling. Importantly, DSPy often requires labels only for the program’s final output, making the system highly modular and reducing the overhead of annotating data for intermediate steps.</p>
+<h4 id="key-features">Key Features:</h4>
+<ol>
+<li>
+<p><strong>Training Examples</strong>:</p>
+<ul>
+<li>
+<p>Training examples may include only input values, with intermediate labels (e.g., reasoning chains or retrieval contexts) being optional unless required by the metric.</p>
+</li>
+<li>
+<p>Labels are assumed primarily for the program’s final output.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Metrics</strong>:</p>
+<ul>
+<li>Metrics can range from simple measures like <strong>Exact Match (EM)</strong> or <strong>F1</strong> to complex DSPy programs that balance multiple objectives.</li>
+</ul>
+</li>
+<li>
+<p><strong>Pipeline Optimization</strong>:</p>
+<ul>
+<li>Example: The RAG module (from the earlier section) can be optimized using a small dataset of question–answer pairs (<span class="katex--inline"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>qa_trainset</mtext></mrow><annotation encoding="application/x-tex">\text{qa\_trainset}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.97786em; vertical-align: -0.31em;"></span><span class="mord text"><span class="mord">qa_trainset</span></span></span></span></span></span>) and an EM metric to bootstrap effective few-shot demonstrations.</li>
+</ul>
+</li>
+</ol>
+<h5 id="example-code-bootstrapping-with-a-teleprompter">Example Code: Bootstrapping with a Teleprompter</h5>
+<pre class=" language-python"><code class="prism  language-python">
+<span class="token comment"># Small training set with only questions and final answers.</span>
+qa_trainset <span class="token operator">=</span> <span class="token punctuation">[</span>dspy<span class="token punctuation">.</span>Example<span class="token punctuation">(</span>question<span class="token operator">=</span><span class="token string">"What is the capital of France?"</span><span class="token punctuation">,</span> answer<span class="token operator">=</span><span class="token string">"Paris"</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+
+<span class="token comment"># The teleprompter will bootstrap missing labels: reasoning chains and retrieval contexts.</span>
+teleprompter <span class="token operator">=</span> dspy<span class="token punctuation">.</span>BootstrapFewShot<span class="token punctuation">(</span>metric<span class="token operator">=</span>dspy<span class="token punctuation">.</span>evaluate<span class="token punctuation">.</span>answer_exact_match<span class="token punctuation">)</span>
+compiled_rag <span class="token operator">=</span> teleprompter<span class="token punctuation">.</span><span class="token builtin">compile</span><span class="token punctuation">(</span>RAG<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> trainset<span class="token operator">=</span>qa_trainset<span class="token punctuation">)</span>
+
+</code></pre>
+<p>In this example:</p>
+<ul>
+<li>The <strong><code>BootstrapFewShot</code> teleprompter</strong> simulates the RAG pipeline on training examples, generating demonstrations for each module that collectively produce valid outputs according to the defined metric.</li>
+</ul>
+<h4 id="composability-of-teleprompters">Composability of Teleprompters</h4>
+<ul>
+<li>Teleprompters allow for <strong>teacher-student compositions</strong>. A teacher program (e.g., an ensemble of large LMs) can supervise a student program (e.g., simpler pipelines with smaller LMs), enabling rich and efficient pipelines.</li>
+</ul>
+<h5 id="fine-tuning-example">Fine-Tuning Example:</h5>
+<p>A fine-tuning process can start with a compiled RAG pipeline (e.g., using a large Llama2-13B-chat LM) and fine-tune a smaller model like Flan-T5-large to create a more efficient program:</p>
+<pre class=" language-python"><code class="prism  language-python">
+<span class="token comment"># Larger set of questions with *no labels*. Labels for all steps will be bootstrapped.</span>
+
+unlabeled_questions <span class="token operator">=</span> <span class="token punctuation">[</span>
+dspy<span class="token punctuation">.</span>Example<span class="token punctuation">(</span>question<span class="token operator">=</span><span class="token string">"What is the capital of Germany?"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+<span class="token punctuation">]</span>
+
+<span class="token comment"># Use ‘answer_passage_match’ to filter ungrounded answers.</span>
+finetuning_teleprompter <span class="token operator">=</span> BootstrapFinetune<span class="token punctuation">(</span>metric<span class="token operator">=</span>dspy<span class="token punctuation">.</span>evaluate<span class="token punctuation">.</span>answer_passage_match<span class="token punctuation">)</span>
+
+<span class="token comment"># Compile the fine-tuned pipeline with a smaller model.</span>
+compiled_rag_via_finetune <span class="token operator">=</span> finetuning_teleprompter<span class="token punctuation">.</span><span class="token builtin">compile</span><span class="token punctuation">(</span>
+RAG<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+teacher<span class="token operator">=</span>compiled_rag<span class="token punctuation">,</span>
+trainset<span class="token operator">=</span>unlabeled_questions<span class="token punctuation">,</span>
+target<span class="token operator">=</span><span class="token string">'google/flan-t5-large'</span>
+<span class="token punctuation">)</span>
+
+</code></pre>
+<p>In this example:</p>
+<ul>
+<li>
+<p>The <strong><code>BootstrapFinetune</code> teleprompter</strong> fine-tunes the pipeline on a larger, unlabeled dataset by leveraging a teacher program for guidance.</p>
+</li>
+<li>
+<p>It filters outputs using the <strong><code>answer_passage_match</code> metric</strong> to ensure grounded answers.</p>
+</li>
+</ul>
+<p>Teleprompters in DSPy simplify and automate the optimization of LM pipelines by leveraging bootstrapping, few-shot demonstrations, and efficient fine-tuning. Their modular and composable design allows users to adapt programs for different tasks with minimal labeling, making them powerful tools for developing sophisticated pipelines with gradient-free methods.</p>
+<h1 id="the-dspy-compiler">The DSPy Compiler</h1>
+<p>DSPy’s strength lies in its ability to <strong>automatically optimize programs</strong>. This process, called “compilation,” uses a special optimizer known as a <strong>teleprompter</strong>. A teleprompter improves program modules by refining their instructions, field descriptions, or example demonstrations. In DSPy, <strong>prompting</strong> and <strong>finetuning</strong> are unified under this optimization process.</p>
+<h2 id="how-teleprompters-work">How Teleprompters Work</h2>
+<p>Teleprompters typically operate in <strong>three stages</strong>:</p>
+<h3 id="stage-1-candidate-generation"><strong>Stage 1: Candidate Generation</strong></h3>
+<ul>
+<li>
+<p>The teleprompter identifies all unique <strong>Predict modules</strong> (i.e., predictors) in a program, even those nested within other modules.</p>
+</li>
+<li>
+<p>It generates <strong>candidates</strong> for these modules’ parameters, such as demonstrations (example input-output pairs).</p>
+</li>
+<li>
+<p>A basic teleprompter, like <strong>BootstrapFewShot</strong>, simulates a program (or its simpler zero-shot version) on training inputs. For instance:</p>
+</li>
+<li>
+<p>It runs the program multiple times, possibly using randomness (high temperature) to explore different possibilities.</p>
+</li>
+<li>
+<p>It tracks <strong>multi-stage traces</strong> (execution steps across multiple stages) in a thread-safe manner.</p>
+</li>
+<li>
+<p>The program’s <strong>metric</strong> evaluates these traces, filtering out bad ones and keeping only those that meet the required criteria.</p>
+</li>
+<li>
+<p>These good examples are used as <strong>potential demonstrations</strong> for the program. While language models (LMs) can be unreliable, they are surprisingly effective at generating valid multi-stage designs.</p>
+</li>
+<li>
+<p>This process helps bootstrap a few examples that satisfy program constraints, enabling iterative refinement if necessary.</p>
+</li>
+</ul>
+<h3 id="stage-2-parameter-optimization"><strong>Stage 2: Parameter Optimization</strong></h3>
+<ul>
+<li>
+<p>After generating candidates (demonstrations, instructions, etc.), the teleprompter selects the best ones using optimization techniques like:</p>
+</li>
+<li>
+<p><strong>Random search</strong> or algorithms such as <strong>Tree-structured Parzen Estimators</strong> (e.g., in HyperOpt or Optuna).</p>
+</li>
+<li>
+<p>For <strong>finetuning</strong>, the teleprompter uses these demonstrations to update the language model’s (LM) weights for each predictor. This creates a more specialized model for the task.</p>
+</li>
+</ul>
+<h3 id="stage-3-higher-order-program-optimization"><strong>Stage 3: Higher-Order Program Optimization</strong></h3>
+<ul>
+<li>
+<p>At this stage, the teleprompter modifies the program’s <strong>control flow</strong> for better performance. A simple example is <strong>ensembling</strong>:</p>
+</li>
+<li>
+<p>The teleprompter creates multiple versions of the program.</p>
+</li>
+<li>
+<p>These versions are run in parallel, and their predictions are combined using a custom function (e.g., majority voting).</p>
+</li>
+<li>
+<p>Future work could involve more dynamic optimizations, such as <strong>test-time bootstrapping</strong> or automated <strong>backtracking logic</strong>.</p>
+</li>
+</ul>
+<h2 id="example-of-candidate-and-parameter-optimization">Example of Candidate and Parameter Optimization</h2>
+<p>Suppose you’re using <strong>BootstrapFewShot</strong> for optimization:</p>
+<ul>
+<li>
+<p>The teleprompter simulates the program on training inputs, generates multi-stage traces, and filters out bad ones using metrics.</p>
+</li>
+<li>
+<p>Once good examples are obtained, they serve as candidates for further <strong>random search</strong> or <strong>finetuning</strong>.</p>
+</li>
+<li>
+<p>If finetuning is applied, the LM’s weights for each module are updated, creating a more efficient and specialized program.</p>
+</li>
+</ul>
+<h3 id="mathematical-tools-in-dspy">Mathematical Tools in DSPy</h3>
+<p>Teleprompters rely on optimization techniques, such as:</p>
+<ul>
+<li>
+<p><strong>Random search</strong>: A simple way to explore candidate parameters.</p>
+</li>
+<li>
+<p><strong>Tree-structured Parzen Estimators (TPE)</strong>: Advanced methods for hyperparameter tuning, implemented in libraries like HyperOpt and Optuna.</p>
+</li>
+</ul>
+<p>Ensembles and future optimizations allow DSPy to support dynamic workflows, improving program flexibility and performance over time.</p>
+<hr>
+<p>DSPy represents a significant advancement in AI system design by enabling efficient, modular, and optimized use of LMs. Its ability to handle a wide range of tasks and reduce reliance on large, hand-crafted prompts positions it as a valuable tool for developing high-performance AI systems with small LMs. The framework’s composability and optimization techniques show great promise in improving the flexibility and effectiveness of modern AI pipelines.</p>
+</div>
+</body>
+
+</html>
