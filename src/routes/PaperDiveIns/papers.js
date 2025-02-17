@@ -44,6 +44,17 @@ const papers = [
             src:"/papers/assets/DSPY_Compiling Declarative Language Model Calls into Self-Improving Pipelines_0.png",
             alt:"DSPY_Compiling Declarative Language Model Calls into Self-Improving Pipelines"
         }
+    },
+    {
+        title: "Program of Thoughts Prompting: Disentangling Computation from Reasoning for Numerical Reasoning Tasks",
+        description:"This paper introduces **Program of Thoughts (PoT) prompting**, a method that separates computation from reasoning in large language models (LLMs) by using external program interpreters to execute calculations. Unlike **Chain of Thought (CoT) prompting**, where LLMs perform both reasoning and computation, PoT allows models to generate step-by-step reasoning in Python code, which is then executed for accurate results. PoT significantly improves performance on mathematical and financial reasoning tasks, outperforming CoT by **12% on average** and achieving state-of-the-art results when combined with **self-consistency (SC) decoding**. The method demonstrates strong **generalization in zero-shot settings**, proving useful for diverse numerical reasoning tasks. While PoT enhances accuracy and scalability, challenges remain in handling diverse algebraic problems, ensuring code safety, and further improving generalization across broader symbolic reasoning tasks.",
+        tags: ["Prompting", "Reasoning in LLMs"],
+        markdownFile: "", // Path to the Markdown file
+        htmlFile:`/papers/Program of Thoughts Prompting_Disentangling Computation from Reasoning for Numerical Reasoning Tasks.html`,
+        img: {
+            src:`/papers/assets/Program of Thoughts Prompting_Disentangling Computation from Reasoning for Numerical Reasoning Tasks_0.png`,
+            alt:"Research Paper"
+        }
     }
 ];
 
