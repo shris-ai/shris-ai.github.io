@@ -1,0 +1,293 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p>Numerical reasoning is a key challenge in AI, and many datasets have been created to test deep learning models’ ability to solve math problems. The most common benchmarks involve <strong>math word problems (MWP)</strong>, where AI models answer math-related questions expressed in natural language. Some datasets also focus on <strong>financial problems</strong>, requiring models to handle financial calculations.</p>
+<p>Earlier approaches trained models from scratch or fine-tuned them to generate step-by-step solutions. However, this required large amounts of <strong>expert-annotated training data</strong>. Recently, researchers found that <strong>large language models (LLMs)</strong> can solve these problems using a technique called <strong>Chain-of-Thought (CoT) prompting</strong>, where models are given a few examples with explanations and answers. This method has achieved <strong>state-of-the-art results</strong> on many reasoning tasks.</p>
+<h1 id="in-context-learning--chain-of-thought-cot-reasoning">In-Context Learning &amp; Chain of Thought (CoT) Reasoning</h1>
+<p><strong>In-context learning</strong> allows large language models (LLMs) to make predictions based on a few examples (prompts) without modifying their internal parameters. Instead of training on large datasets, LLMs learn from a few input-output demonstrations and then apply the same reasoning pattern to new problems.</p>
+<p>A more advanced form of in-context learning is <strong>Chain-of-Thought (CoT) prompting</strong>, where the model is not just given input-output pairs but also a step-by-step explanation (rationale). This has been shown to improve LLMs’ reasoning ability on various complex tasks.</p>
+<p><strong>Limitations of Chain-of-Thought (CoT) Reasoning</strong></p>
+<p>CoT relies on LLMs to both <strong>reason and compute</strong> the answers, but this has several problems:</p>
+<ol>
+<li>
+<p><strong>LLMs make calculation mistakes</strong>, especially with large numbers.</p>
+</li>
+<li>
+<p><strong>LLMs struggle with complex math</strong>, like solving polynomial or differential equations.</p>
+</li>
+<li>
+<p><strong>LLMs are inefficient for iterative processes</strong>, especially when many steps are needed.</p>
+</li>
+</ol>
+<h1 id="program-of-thoughts-pot-prompting">Program of Thoughts (PoT) Prompting</h1>
+<p>Instead of expressing reasoning in <strong>natural language</strong>, PoT represents the thought process as a <strong>Python program</strong> with meaningful variable names. The model generates code that describes how to solve the problem, and then a <strong>Python interpreter executes the code</strong> to compute the final answer.</p>
+<img src="/papers/assets/Program of Thoughts Prompting_Disentangling Computation from Reasoning for Numerical Reasoning Tasks_1.png"/>
+<h2 id="how-pot-works"><strong>How PoT Works</strong></h2>
+<ul>
+<li>
+<p>Instead of solving math directly, the model <strong>generates Python code</strong> that describes the solution.</p>
+</li>
+<li>
+<p>The code is then executed by an external Python interpreter to get the correct answer.</p>
+</li>
+<li>
+<p>This allows PoT to handle <strong>iterations, complex equations, and precise calculations</strong> far better than CoT. For example:</p>
+<ul>
+<li>
+<p><strong>CoT struggles with solving a cubic equation</strong>, whereas <strong>PoT can generate Python code using the SymPy library</strong> to solve it accurately.</p>
+</li>
+<li>
+<p><strong>CoT performs poorly on long iterations</strong>, but <strong>PoT can express them in a few lines of code</strong> and run them efficiently.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="key-differences-between-pot-and-cot">Key Differences Between PoT and CoT</h2>
+<img src="/papers/assets/Program of Thoughts Prompting_Disentangling Computation from Reasoning for Numerical Reasoning Tasks_0.png"/>
+<ul>
+<li>
+<p><strong>CoT:</strong> The LLM performs both reasoning and computation, which often leads to <strong>errors in arithmetic and complex equations</strong>.</p>
+</li>
+<li>
+<p><strong>PoT:</strong> The LLM <strong>only generates the reasoning steps</strong> in code, while the computation is handled by Python, leading to <strong>more accurate results</strong>.</p>
+</li>
+</ul>
+<p>For example, instead of asking the model to directly generate and solve the equation:</p>
+<p><span class="katex--display"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>solve</mtext><mo stretchy="false">(</mo><mn>20000</mn><mo>×</mo><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><mi>x</mi><msup><mo stretchy="false">)</mo><mn>3</mn></msup><mo>−</mo><mn>2000</mn><mo>−</mo><mi>x</mi><mo>×</mo><mn>20000</mn><mo>×</mo><mn>3</mn><mo>−</mo><mn>1000</mn><mo separator="true">,</mo><mi>x</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">  \text{solve}(20000  \times (1 + x)^3 - 2000 - x \times  20000  \times  3 - 1000, x) </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span class="mord">solve</span></span><span class="mopen">(</span><span class="mord">20000</span><span class="mspace" style="margin-right: 0.222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right: 0.222222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right: 0.222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.222222em;"></span></span><span class="base"><span class="strut" style="height: 1.11411em; vertical-align: -0.25em;"></span><span class="mord mathnormal">x</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.864108em;"><span class="" style="top: -3.113em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right: 0.222222em;"></span></span><span class="base"><span class="strut" style="height: 0.72777em; vertical-align: -0.08333em;"></span><span class="mord">2000</span><span class="mspace" style="margin-right: 0.222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right: 0.222222em;"></span></span><span class="base"><span class="strut" style="height: 0.66666em; vertical-align: -0.08333em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right: 0.222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right: 0.222222em;"></span></span><span class="base"><span class="strut" style="height: 0.72777em; vertical-align: -0.08333em;"></span><span class="mord">20000</span><span class="mspace" style="margin-right: 0.222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right: 0.222222em;"></span></span><span class="base"><span class="strut" style="height: 0.72777em; vertical-align: -0.08333em;"></span><span class="mord">3</span><span class="mspace" style="margin-right: 0.222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right: 0.222222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">1000</span><span class="mpunct">,</span><span class="mspace" style="margin-right: 0.166667em;"></span><span class="mord mathnormal">x</span><span class="mclose">)</span></span></span></span></span></span></p>
+<p>PoT <strong>breaks the problem into multiple steps</strong>, defining variables like <code>interest_rate</code> and <code>sum_in_two_years_with_XXX_interest</code>, making the process easier to follow and execute correctly.</p>
+<h1 id="pot-as-an-intermediate-step">PoT as an Intermediate Step</h1>
+<p>Some problems require <strong>both numerical computation and additional reasoning</strong>. In such cases, PoT can be used as an <strong>intermediate step</strong> before applying CoT for further reasoning.</p>
+<p><strong>How it Works:</strong></p>
+<ol>
+<li>
+<p>PoT generates a <strong>Python program</strong> to compute intermediate values.</p>
+</li>
+<li>
+<p>If further reasoning is needed, CoT takes over to derive the final answer.</p>
+</li>
+<li>
+<p>The model is taught when to <strong>“keep prompting”</strong> and use CoT after PoT.</p>
+</li>
+</ol>
+<p>For example, in a problem where two trains meet in <strong>2.05 hours</strong>, PoT can calculate this value correctly. However, if the answer requires converting <strong>2.05 hours into HH:MM format</strong>, CoT can be used to finalize the output.</p>
+<img src="/papers/assets/Program of Thoughts Prompting_Disentangling Computation from Reasoning for Numerical Reasoning Tasks_2.png"/>
+<p>This combined approach is particularly useful for datasets like <strong>AQuA</strong>, where answers need additional formatting, while most other datasets can be solved with PoT alone.</p>
+<h2 id="experimental-results"><strong>Experimental Results</strong></h2>
+<p>PoT was tested on <strong>five MWP datasets</strong> (GSM8K, AQuA, SVAMP, TabMWP, MultiArith) and <strong>three financial datasets</strong> (FinQA, ConvFinQA, TATQA). These datasets include different formats like <strong>text, tables, and conversations</strong>.</p>
+<h2 id="key-findings"><strong>Key Findings:</strong></h2>
+<ul>
+<li>
+<p><strong>PoT significantly outperforms CoT</strong> across all datasets.</p>
+</li>
+<li>
+<p><strong>Few-shot setting:</strong> PoT improves accuracy by <strong>8% on MWP datasets</strong> and <strong>15% on financial datasets</strong> compared to CoT.</p>
+</li>
+<li>
+<p><strong>Zero-shot setting:</strong> PoT improves by <strong>12% on MWP datasets</strong> over CoT.</p>
+</li>
+<li>
+<p><strong>PoT + Self-Consistency (PoT+SC)</strong> beats <strong>CoT+SC</strong> by an <strong>average of 10%</strong>, achieving the <strong>best-known results</strong> on MWP datasets and nearly the best on financial datasets (excluding GPT-4).</p>
+</li>
+</ul>
+<img src="/papers/assets/Program of Thoughts Prompting_Disentangling Computation from Reasoning for Numerical Reasoning Tasks_3.png"/>
+<h1 id="summary-of-experiments">Summary of Experiments</h1>
+<h2 id="experimental-setup">Experimental Setup</h2>
+<h3 id="datasets-used">Datasets Used</h3>
+<p>The study evaluates <strong>Program-of-Thoughts (PoT) prompting</strong> on multiple datasets covering <strong>math word problems (MWP) and financial reasoning</strong>. The datasets include various input formats like <strong>questions, tables, and conversations</strong>. To handle different structures, tables are converted into text using a standard format, with columns separated by <code>|</code> and rows by <code>\n</code>.</p>
+<h3 id="implementation-details">Implementation Details</h3>
+<ul>
+<li>
+<p><strong>Models Used:</strong> The primary model is <strong>Codex (code-davinci-002)</strong>, but other models like <strong>GPT-3, ChatGPT, CodeGen, CodeT5+, and Xgen</strong> were tested for comparison.</p>
+</li>
+<li>
+<p><strong>Execution Method:</strong> PoT-generated code is run using <strong>Python 3.8 and the SymPy library</strong> for precise calculations.</p>
+</li>
+<li>
+<p><strong>Few-Shot Learning:</strong> The number of examples (shots) varies based on dataset difficulty—<strong>fewer shots</strong> for simple datasets like FinQA and <strong>more shots (up to 8)</strong> for challenging datasets like AQuA and TATQA.</p>
+</li>
+<li>
+<p><strong>Prompt Optimization:</strong> LLMs sometimes generate reasoning chains in comments instead of Python code. To prevent this, a bias is applied to <strong>suppress the ‘#’ token</strong>, encouraging models to output executable code.</p>
+</li>
+</ul>
+<h3 id="evaluation-metrics">Evaluation Metrics</h3>
+<ul>
+<li>
+<p><strong>Exact Match (EM) scores</strong> are used for MWP datasets.</p>
+</li>
+<li>
+<p><strong>For AQuA</strong>, PoT computes the answer first, then selects the closest multiple-choice option.</p>
+</li>
+<li>
+<p><strong>Financial datasets</strong> use official GitHub evaluation scripts.</p>
+</li>
+<li>
+<p><strong>LLM errors in arithmetic (high-precision floats, large numbers) are accounted for</strong> using <code>math.isclose</code> with a <strong>relative tolerance of 0.001</strong>.</p>
+</li>
+</ul>
+<h3 id="baselines-compared">Baselines Compared</h3>
+<p>PoT is compared against:</p>
+<ul>
+<li>
+<p><strong>Codex, GPT-3, PaLM, LaMDA</strong></p>
+</li>
+<li>
+<p><strong>Chain-of-Thought (CoT) reasoning</strong></p>
+</li>
+<li>
+<p><strong>CoT + External Calculator (CoT+calc)</strong></p>
+</li>
+<li>
+<p><strong>Self-Consistency (SC) decoding</strong> (majority vote over 40 outputs)</p>
+</li>
+</ul>
+<h2 id="main-results">Main Results</h2>
+<h3 id="few-shot-performance">Few-Shot Performance</h3>
+<ul>
+<li>
+<p><strong>PoT outperforms CoT across all datasets.</strong></p>
+</li>
+<li>
+<p><strong>MWP improvements:</strong> +8% on GSM8K, AQuA, TabMWP; +4% on SVAMP (simpler dataset).</p>
+</li>
+<li>
+<p><strong>Financial QA improvements:</strong> +20% on FinQA, ConvFinQA; +8% on TATQA.</p>
+</li>
+<li>
+<p><strong>Why?</strong> CoT struggles with large numbers, while PoT uses <strong>Python for precise calculations</strong>.</p>
+</li>
+</ul>
+<p>Even when <strong>CoT uses an external calculator (CoT+calc)</strong>, PoT still performs better because rigid post-processing in calculators often fails to <strong>correctly adjust the generated reasoning chain</strong>.</p>
+<h3 id="few-shot--self-consistency-sc-performance">Few-Shot + Self-Consistency (SC) Performance</h3>
+<ul>
+<li>
+<p>SC decoding <strong>reduces randomness</strong> and boosts accuracy.</p>
+</li>
+<li>
+<p><strong>PoT+SC still outperforms CoT+SC</strong>, especially on <strong>MWP datasets (+12% avg gain)</strong> and <strong>financial datasets (+20% on FinQA/ConvFinQA, +7% on TATQA)</strong>.</p>
+</li>
+</ul>
+<h3 id="zero-shot-performance">Zero-Shot Performance</h3>
+<ul>
+<li>
+<p><strong>PoT significantly outperforms CoT</strong> across all datasets.</p>
+</li>
+<li>
+<p><strong>Zero-shot PoT beats zero-shot CoT by an average of 12%.</strong></p>
+</li>
+<li>
+<p><strong>On TabMWP, zero-shot PoT even surpasses few-shot CoT!</strong></p>
+</li>
+<li>
+<p><strong>Why?</strong> PoT generalizes better to unseen numerical reasoning tasks without needing dataset-specific examples.</p>
+</li>
+</ul>
+<h2 id="ablation-studies">Ablation Studies</h2>
+<h3 id="effect-of-different-models">Effect of Different Models</h3>
+<ul>
+<li>
+<p><strong>GPT-3.5-turbo performs best</strong>, outperforming <strong>Codex (code-davinci-002)</strong>.</p>
+</li>
+<li>
+<p><strong>Text-based instruction tuning weakens Codex</strong>, making it worse than the code-focused version.</p>
+</li>
+<li>
+<p><strong>Open-source models like CodeGen underperform</strong>, likely due to weaker pretraining and smaller model sizes.</p>
+</li>
+</ul>
+<h3 id="sensitivity-to-example-selection">Sensitivity to Example Selection</h3>
+<ul>
+<li>
+<p>More examples (shots) <strong>help complex datasets (GSM8K) more than simpler ones (FinQA)</strong>.</p>
+</li>
+<li>
+<p>With only <strong>2 shots, PoT’s performance can vary by up to 7%</strong> due to randomness in example selection.</p>
+</li>
+</ul>
+<h3 id="comparison-with-pal">Comparison with PaL</h3>
+<ul>
+<li>PoT <strong>outperforms PaL (Program-aided Language)</strong>, especially on <strong>SVAMP and ASDIV (+6% gain)</strong>.</li>
+</ul>
+<h3 id="importance-of-multi-step-reasoning--semantic-binding">Importance of Multi-Step Reasoning &amp; Semantic Binding</h3>
+<ul>
+<li>
+<p><strong>Breaking problems into step-by-step reasoning improves performance.</strong></p>
+</li>
+<li>
+<p><strong>Using meaningful variable names instead of generic <code>a, b, c</code> leads to better results.</strong></p>
+</li>
+<li>
+<p><strong>Direct equation generation is harder for LLMs</strong> than expressing reasoning in multiple steps.</p>
+</li>
+</ul>
+<h3 id="breakdown-of-results-by-problem-type">Breakdown of Results by Problem Type</h3>
+<p>PoT <strong>significantly outperforms CoT</strong> in:</p>
+<ul>
+<li>
+<p><strong>Linear &amp; polynomial equations</strong></p>
+</li>
+<li>
+<p><strong>Iterative problems</strong></p>
+</li>
+<li>
+<p><strong>Symbolic reasoning</strong></p>
+</li>
+<li>
+<p><strong>Combinatorics</strong></p>
+</li>
+</ul>
+<p>PoT <strong>performs similarly to CoT</strong> in:</p>
+<ul>
+<li>
+<p><strong>Basic arithmetic</strong></p>
+</li>
+<li>
+<p><strong>Probability questions</strong></p>
+</li>
+<li>
+<p><strong>Geometry problems</strong></p>
+</li>
+</ul>
+<p><strong>Why?</strong> More complex problems <strong>benefit from structured programming</strong>, while simple math is handled well by both methods.</p>
+<h2 id="error-analysis">Error Analysis</h2>
+<p>Two types of errors were found:</p>
+<ol>
+<li>
+<p><strong>Value Grounding Errors (47%)</strong> – The model <strong>assigns incorrect values to variables</strong>.</p>
+</li>
+<li>
+<p><strong>Logic Errors (33%)</strong> – The model <strong>fails to generate the correct computation process</strong> even with correct variable assignments.</p>
+</li>
+<li>
+<p><strong>Combined Errors (15%)</strong> – Both types occur together.</p>
+</li>
+<li>
+<p><strong>Correct Answers Misclassified as Wrong (5%)</strong> – Issues in evaluation.</p>
+</li>
+</ol>
+<p>The <strong>majority of errors were value grounding issues</strong>, similar to CoT errors.</p>
+<h1 id="conclusion--limitations">Conclusion &amp; Limitations</h1>
+<h2 id="key-takeaways">Key Takeaways</h2>
+<p>This work explores how to <strong>separate reasoning from computation</strong> in solving numerical problems. By using <strong>Program-of-Thoughts (PoT) prompting</strong>, large language models (LLMs) can:</p>
+<p>✅ <strong>Generate structured programs</strong> to express complex reasoning steps.</p>
+<p>✅ <strong>Delegate computation</strong> to an external Python interpreter, improving accuracy.</p>
+<p>✅ <strong>Significantly outperform Chain-of-Thought (CoT)</strong> across multiple math and financial datasets.</p>
+<p>✅ <strong>Self-Consistency (SC) decoding further enhances PoT’s accuracy</strong> by reducing randomness in reasoning steps.</p>
+<p>✅ <strong>Achieve strong zero-shot generalization</strong>, making PoT effective even without dataset-specific examples.</p>
+<p>✅ <strong>Utilize semantic binding and multi-step reasoning</strong> for better problem decomposition.</p>
+<p>✅ <strong>Handle complex reasoning tasks better than CoT</strong>, while both methods perform similarly on basic math problems.</p>
+<h2 id="limitations--future-work">Limitations &amp; Future Work</h2>
+<p>⚠ <strong>Code Execution Risks</strong> – LLM-generated code could include harmful commands (e.g., <code>os.rmdir()</code>). To prevent this, PoT <strong>restricts imports to pre-approved modules</strong>, but this <strong>limits generalization to other symbolic tasks</strong>.</p>
+<p>⚠ <strong>Challenges with Highly Diverse Math Problems</strong> – PoT achieves only <strong>58% accuracy on AQuA</strong>, mainly due to the wide variety of algebraic questions. Future research should explore <strong>better prompting techniques</strong> to help LLMs generate accurate code for <strong>more diverse math problems</strong>.</p>
+<p>By integrating <strong>symbolic execution with LLMs</strong>, this research paves the way for <strong>more reliable, scalable, and mathematically capable AI systems</strong>.</p>
+</div>
+</body>
+
+</html>

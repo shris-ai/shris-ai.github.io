@@ -84,7 +84,23 @@ const papers: Paper[] = [
     sourceLabel: "arXiv",
     reviewedDate: "Jan 2025",
     status: "Complete"
-  }
+  },
+  {
+    title: "Program of Thoughts Prompting: Disentangling Computation from Reasoning for Numerical Reasoning Tasks",
+    description: "PoT represents reasoning as Python code executed by an interpreter, disentangling computation from reasoning and improving accuracy on numerical tasks compared to chain-of-thought.",
+    tags: ["AI", "Machine Learning", "NLP"],
+    markdownFile: "",
+    htmlFile: "src/routes/PaperDiveIns/papers/Program of Thoughts Prompting_Disentangling Computation from Reasoning for Numerical Reasoning Tasks.html",
+    img: {
+      src: "/papers/assets/Program of Thoughts Prompting_Disentangling Computation from Reasoning for Numerical Reasoning Tasks_0.png",
+      alt: "Program of Thoughts Prompting"
+    },
+    publishedDate: "2024",
+    sourceUrl: "https://arxiv.org/abs/2211.12588",
+    sourceLabel: "arXiv",
+    reviewedDate: "Jan 2025",
+    status: "Complete"
+  },
 ];
 
 export default papers;
