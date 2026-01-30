@@ -5,8 +5,29 @@ import globalCss from '../styles/global.css?raw';
 import sharedCss from '../styles/shared.css?raw';
 import topBarCss from '../styles/TopBar.css?raw';
 import breadcrumbCss from '../styles/Breadcrumb.css?raw';
+import authorBioCss from '../styles/AuthorBio.css?raw';
+import pageHomeCss from '../styles/page-home.css?raw';
+import pageBlogCss from '../styles/page-blog.css?raw';
+import pageLabsCss from '../styles/page-labs.css?raw';
+import pageNewsletterCss from '../styles/page-newsletter.css?raw';
+import pagePaperDiveInsCss from '../styles/page-paper-dive-ins.css?raw';
+import pagePaperBreakdownCss from '../styles/page-paper-breakdown.css?raw';
+import pageTagsCss from '../styles/page-tags.css?raw';
 
-const criticalCss = [globalCss, sharedCss, topBarCss, breadcrumbCss].join('\n');
+const criticalCss = [
+  globalCss,
+  sharedCss,
+  topBarCss,
+  breadcrumbCss,
+  authorBioCss,
+  pageHomeCss,
+  pageBlogCss,
+  pageLabsCss,
+  pageNewsletterCss,
+  pagePaperDiveInsCss,
+  pagePaperBreakdownCss,
+  pageTagsCss,
+].join('\n');
 
 interface Props {
   title: string;
@@ -83,7 +104,7 @@ const fullOgImage = ogImage.startsWith('http') ? ogImage : `${siteURL}${ogImage.
     <link rel="canonical" href={currentURL} />
     <link rel="icon" type="image/png" href="/assets/logo.png" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
-    <!-- Critical CSS inlined so fonts, accent colors, .app-struct, TopBar, Breadcrumb work even if _astro fails -->
+    <!-- All styles inlined so site renders correctly even if _astro/*.css fails to load (e.g. GitHub Pages) -->
     <style is:inline set:html={criticalCss} />
     {stackEdit && <link rel="stylesheet" href="https://stackedit.io/style.css" />}
     <title>{title}</title>
