@@ -1,0 +1,191 @@
+/* Shared: page container, page title, tags, paper card layout */
+
+/* Main page wrapper with grid background */
+.page-container {
+  width: 95vw;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+  margin-top: 25px;
+  background-size: 30px 30px;
+  background-color: var(--bg-primary, #F6F6DF);
+  background-image:
+    linear-gradient(to right, rgba(173, 216, 230, 0.3) 0.5px, transparent 0.7px),
+    linear-gradient(to bottom, rgba(173, 216, 230, 0.3) 0.5px, transparent 0.7px);
+  transition: background-color 0.3s ease;
+}
+
+[data-theme="dark"] .page-container {
+  background-image:
+    linear-gradient(to right, rgba(100, 116, 139, 0.2) 0.5px, transparent 0.7px),
+    linear-gradient(to bottom, rgba(100, 116, 139, 0.2) 0.5px, transparent 0.7px);
+}
+
+.page-container.page-container--top-spacing {
+  margin-top: 70px;
+}
+
+/* Main page/heading title (slateblue, bold) */
+.page-title {
+  font-size: 1.7rem;
+  font-weight: bold;
+  color: slateblue;
+  margin-bottom: 1rem;
+  margin-left: 10px;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  margin-top: 70px;
+  transition: color 0.3s ease;
+}
+
+[data-theme="dark"] .page-title {
+  color: #a5b4fc;
+}
+
+.page-title.page-title--no-top-margin {
+  margin-top: 0;
+}
+
+/* Tag pill (nav / filter links) */
+.shared-tag-pill {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  background: var(--tag-bg, #ebf8ff);
+  color: var(--tag-text, #1e40af);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.shared-tag-pill:hover {
+  background: var(--tag-hover, #bee3f8);
+  text-decoration: none;
+}
+
+/* Tag chip (inline on cards) */
+.shared-tag-chip {
+  display: inline-block;
+  background-color: var(--tag-bg, #ebf8ff);
+  color: var(--tag-text, #1e40af);
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-right: 0.5rem;
+  padding: 0.125rem 0.625rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+/* Tag as link (e.g. paper meta row) */
+.shared-tag-link {
+  color: var(--tag-text, slateblue);
+  text-decoration: none;
+  padding: 0.2rem 0.5rem;
+  background: var(--tag-bg, #ebf8ff);
+  border-radius: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.shared-tag-link:hover {
+  background: var(--tag-hover, #bee3f8);
+  text-decoration: underline;
+}
+
+/* Paper list grid */
+.paper-list-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin-top: 30px;
+  gap: 1rem;
+}
+
+/* Paper card row (image + text) */
+.paper-card-layout {
+  display: grid;
+  grid-template-columns: 30% 70%;
+  padding: 10px;
+  align-items: center;
+}
+
+.paper-card-layout--bordered {
+  background: var(--bg-secondary, #ffffff);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow, 0 4px 6px rgba(0, 0, 0, 0.1));
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme="dark"] .paper-card-layout--bordered {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.paper-card-image-wrap {
+  width: 90%;
+  margin-bottom: 1rem;
+}
+
+.paper-card-image {
+  width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.paper-card-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #51153E;
+  margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+[data-theme="dark"] .paper-card-title {
+  color: #c4b5fd;
+}
+
+.paper-card-title--small {
+  font-size: 1.25rem;
+}
+
+.paper-card-meta {
+  margin-bottom: 0.5rem;
+}
+
+.paper-card-description {
+  color: var(--text-secondary, #374151);
+  transition: color 0.3s ease;
+}
+
+[data-theme="dark"] .paper-card-description {
+  color: var(--text-secondary);
+}
+
+.paper-card-description--small {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Card link (no underline, inherit color) */
+.paper-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+@media screen and (max-width: 768px) {
+  .page-container {
+    padding: 0.5rem;
+  }
+
+  .paper-card-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .page-container {
+    margin-top: 4rem;
+  }
+}

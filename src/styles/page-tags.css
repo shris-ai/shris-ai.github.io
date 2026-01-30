@@ -1,0 +1,72 @@
+/* Tags page – unique prefix: page-tags- */
+
+.page-tags-container {
+  overflow-y: auto;
+  margin-top: 25px;
+}
+
+.page-tags-title {
+  margin-bottom: 0.5rem;
+}
+
+.page-tags-description {
+  margin-bottom: 1.5rem;
+  padding-left: 2rem;
+  color: var(--text-secondary, #4b5563);
+  font-size: 1rem;
+}
+
+[data-theme="dark"] .page-tags-title {
+  color: #a5b4fc;
+}
+
+[data-theme="dark"] .page-tags-description {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .page-tags-back-link a {
+  color: #a5b4fc;
+}
+
+[data-theme="dark"] .page-tags-back-link a:hover {
+  color: #c4b5fd;
+}
+
+.page-tags-list-grid {
+  margin-top: 1rem;
+}
+
+.page-tags-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.page-tags-card-info {
+  padding: 0.5rem 0;
+}
+
+.page-tags-tags-row {
+  margin-bottom: 0.5rem;
+}
+
+.page-tags-back-link {
+  margin-top: 2rem;
+  padding-left: 2rem;
+}
+
+.page-tags-back-link a {
+  color: slateblue;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.page-tags-back-link a:hover {
+  text-decoration: underline;
+}
+
+@media screen and (max-width: 768px) {
+  .page-tags-container.page-container {
+    padding: 0.5rem;
+  }
+}

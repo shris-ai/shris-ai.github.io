@@ -1,0 +1,91 @@
+---
+import Icon from './Icon';
+import '../styles/TopBar.css';
+---
+
+<nav class="topbar">
+  <div class="topbar__container">
+    <div class="topbar__content">
+      <a href="/" class="topbar__title-wrap">
+        <div class="topbar__title topbar__title--hindi">सृष्टि</div>
+        <div class="topbar__title">|</div>
+        <div class="topbar__title">Shristi Gautam</div>
+      </a>
+      <div class="topbar__links">
+        <a href="/paper-dive-ins" class="topbar__link" title="Notes" aria-label="Notes">
+          <span class="topbar__icon">
+            <Icon name="notes" client:load />
+          </span>
+        </a>
+        <a href="/paper-dive-ins" class="topbar__link" title="Lab" aria-label="Lab">
+          <span class="topbar__icon">
+            <Icon name="lab" client:load />
+          </span>
+        </a>
+        <a href="/paper-dive-ins" class="topbar__link" title="Paper Dive-Ins" aria-label="Paper Dive-Ins">
+          <span class="topbar__icon">
+            <Icon name="paper" client:load />
+          </span>
+        </a>
+        <a href="/newsletter" class="topbar__link" title="Newsletter – In the Margins of AI" aria-label="Newsletter">
+          <span class="topbar__icon">
+            <Icon name="newsletter" client:load />
+          </span>
+        </a>
+        <a href="/" class="topbar__link" title="About" aria-label="About">
+          <span class="topbar__icon">
+            <Icon name="contact" client:load />
+          </span>
+        </a>
+        <button 
+          type="button"
+          class="topbar__link topbar__theme-toggle" 
+          id="theme-toggle"
+          aria-label="Toggle dark mode"
+          title="Toggle dark mode"
+        >
+          <span class="topbar__icon topbar__icon--moon">
+            <Icon name="moon" client:load />
+          </span>
+          <span class="topbar__icon topbar__icon--sun" style="display: none;">
+            <Icon name="sun" client:load />
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<script>
+  if (typeof window !== 'undefined') {
+    const themeToggle = document.getElementById('theme-toggle');
+    
+    // Check for saved theme preference or default to light mode
+    const getTheme = () => {
+      const saved = localStorage.getItem('theme');
+      if (saved) return saved;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+
+    const setTheme = (theme) => {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      
+      // Update button data attribute for icon switching
+      if (themeToggle) {
+        themeToggle.setAttribute('data-theme', theme);
+      }
+    };
+
+    // Initialize theme on page load
+    const currentTheme = getTheme();
+    setTheme(currentTheme);
+
+    // Toggle theme on click
+    themeToggle?.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      setTheme(newTheme);
+    });
+  }
+</script>

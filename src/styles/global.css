@@ -1,0 +1,91 @@
+/* Global: layout, base elements, shared content box */
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Light mode colors */
+  --bg-primary: #F6F6DF;
+  --bg-secondary: #ffffff;
+  --text-primary: #1f2937;
+  --text-secondary: #4b5563;
+  --border-color: rgba(0, 0, 0, 0.1);
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --link-color: slateblue;
+  --link-hover: #4a3f91;
+}
+
+[data-theme="dark"] {
+  /* Dark mode colors */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --text-primary: #e5e5e5;
+  --text-secondary: #a3a3a3;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --link-color: #818cf8;
+  --link-hover: #a5b4fc;
+}
+
+a {
+  font-weight: 500;
+  color: var(--link-color);
+  text-decoration: inherit;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--link-hover);
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: monospace;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Shared content box used across pages */
+.app-struct {
+  justify-self: center;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  margin: 20px;
+  padding: 15px;
+  width: 100%;
+  max-width: 95%;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  overflow-wrap: break-word;
+  white-space: normal;
+  display: block;
+  line-height: 1.6;
+  font-size: 1rem;
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+@font-face {
+  font-family: 'AnaktoriaRegular';
+  src: url('/fonts/Anaktoria/Anaktoria.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}

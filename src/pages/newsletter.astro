@@ -1,0 +1,75 @@
+---
+import Layout from '../layouts/Layout.astro';
+import TopBar from '../components/TopBar.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { getSubstackFeedInfo, SUBSTACK_NEWSLETTER_URL } from '../utils/substack.ts';
+import '../styles/page-newsletter.css';
+
+const title = 'Newsletter';
+const description = 'In the Margins of AI – thoughts on AI, research, and the edges of what we’re building.';
+const { feedImageUrl, posts } = await getSubstackFeedInfo(5);
+---
+
+<Layout title={`${title} - Shristi Gautam`} description={description} ogImage="/assets/bio-image.jpg">
+  <TopBar />
+  <Breadcrumb items={[
+    { label: 'Home', href: '/' },
+    { label: 'Newsletter' }
+  ]} />
+  <div class="page-container page-newsletter-container">
+    <header class="page-newsletter-header app-struct">
+      <div class="page-newsletter-header-layout">
+        {feedImageUrl && (
+          <div class="page-newsletter-header-left">
+            <a href={SUBSTACK_NEWSLETTER_URL} target="_blank" rel="noopener noreferrer" class="page-newsletter-header-image-link">
+              <img src={feedImageUrl} alt="" class="page-newsletter-header-image" width="160" height="160" />
+            </a>
+          </div>
+        )}
+        <div class="page-newsletter-header-right">
+          <h1 class="page-title page-newsletter-title">In the Margins of AI</h1>
+          <p class="page-newsletter-intro">
+            I also write a newsletter about AI, research, and the ideas that live in the margins—beyond the headlines.
+            You can check it out here and subscribe for new posts.
+          </p>
+          <a href={SUBSTACK_NEWSLETTER_URL} target="_blank" rel="noopener noreferrer" class="page-newsletter-cta">
+            Open newsletter on Substack →
+          </a>
+        </div>
+      </div>
+    </header>
+    <section class="page-newsletter-posts app-struct" aria-label="Recent newsletter posts">
+      <h2 class="page-newsletter-posts-title">Recent posts</h2>
+      {posts.length > 0 ? (
+        <ul class="page-newsletter-posts-list">
+          {posts.map((post) => (
+            <li class="page-newsletter-post-item">
+              <a href={post.link} target="_blank" rel="noopener noreferrer" class="page-newsletter-post-link">
+                {post.imageUrl && (
+                  <span class="page-newsletter-post-image-wrap">
+                    <img src={post.imageUrl} alt="" class="page-newsletter-post-image" loading="lazy" />
+                  </span>
+                )}
+                <span class="page-newsletter-post-body">
+                  <span class="page-newsletter-post-title">{post.title}</span>
+                  {post.subtitle && (
+                    <span class="page-newsletter-post-subtitle">{post.subtitle}</span>
+                  )}
+                  {post.pubDate && (
+                    <time class="page-newsletter-post-date" datetime={new Date(post.pubDate).toISOString()}>
+                      {new Date(post.pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                    </time>
+                  )}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="page-newsletter-posts-fallback">
+          <a href={SUBSTACK_NEWSLETTER_URL} target="_blank" rel="noopener noreferrer">Visit the newsletter on Substack</a> to read recent posts.
+        </p>
+      )}
+    </section>
+  </div>
+</Layout>
