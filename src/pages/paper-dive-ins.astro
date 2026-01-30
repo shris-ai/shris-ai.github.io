@@ -177,8 +177,8 @@ const collectionSchema = {
   </div>
 </Layout>
 
-<script>
-  if (typeof window !== 'undefined') {
+<script is:inline>
+  (function() {
     const filterTrigger = document.getElementById('filter-trigger');
     const filterPanel = document.getElementById('filter-panel');
     const filterPanelClose = document.getElementById('filter-panel-close');
@@ -332,5 +332,5 @@ const collectionSchema = {
     });
 
     updateFilters();
-  }
+  })();
 </script>

@@ -109,10 +109,10 @@ const fullOgImage = ogImage.startsWith('http') ? ogImage : `${siteURL}${ogImage.
     {stackEdit && <link rel="stylesheet" href="https://stackedit.io/style.css" />}
     <title>{title}</title>
     <script is:inline>
-      // Initialize theme immediately to prevent flash
+      // Initialize theme immediately to prevent flash (default: dark)
       (function() {
         const saved = localStorage.getItem('theme');
-        const theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        const theme = saved || 'dark';
         document.documentElement.setAttribute('data-theme', theme);
       })();
     </script>

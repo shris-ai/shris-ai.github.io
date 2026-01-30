@@ -157,8 +157,8 @@ const ogImage = lab ? `${siteURL}${lab.image.startsWith('/') ? lab.image : '/' +
   }
 </style>
 
-<script>
-  if (typeof window !== 'undefined') {
+<script is:inline>
+  (function() {
     const tocToggle = document.getElementById('toc-toggle');
     const tocSidebar = document.getElementById('toc-sidebar');
     const tocClose = document.getElementById('toc-close');
@@ -181,12 +181,12 @@ const ogImage = lab ? `${siteURL}${lab.image.startsWith('/') ? lab.image : '/' +
     if (tocToggle) tocToggle.addEventListener('click', openTOC);
     if (tocClose) tocClose.addEventListener('click', closeTOC);
 
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && tocSidebar?.classList.contains(SIDEBAR_ACTIVE)) closeTOC();
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && tocSidebar && tocSidebar.classList.contains(SIDEBAR_ACTIVE)) closeTOC();
     });
 
-    document.querySelectorAll('.page-breakdown-toc-sidebar .page-breakdown-toc-item a').forEach((link) => {
-      link.addEventListener('click', () => setTimeout(closeTOC, 100));
+    document.querySelectorAll('.page-breakdown-toc-sidebar .page-breakdown-toc-item a').forEach(function(link) {
+      link.addEventListener('click', function() { setTimeout(closeTOC, 100); });
     });
-  }
+  })();
 </script>

@@ -56,36 +56,22 @@ import '../styles/TopBar.css';
   </div>
 </nav>
 
-<script>
-  if (typeof window !== 'undefined') {
+<script is:inline>
+  (function() {
     const themeToggle = document.getElementById('theme-toggle');
-    
-    // Check for saved theme preference or default to light mode
-    const getTheme = () => {
+    const getTheme = function() {
       const saved = localStorage.getItem('theme');
-      if (saved) return saved;
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      return saved || 'dark';
     };
-
-    const setTheme = (theme) => {
+    const setTheme = function(theme) {
       document.documentElement.setAttribute('data-theme', theme);
       localStorage.setItem('theme', theme);
-      
-      // Update button data attribute for icon switching
-      if (themeToggle) {
-        themeToggle.setAttribute('data-theme', theme);
-      }
+      if (themeToggle) themeToggle.setAttribute('data-theme', theme);
     };
-
-    // Initialize theme on page load
-    const currentTheme = getTheme();
-    setTheme(currentTheme);
-
-    // Toggle theme on click
-    themeToggle?.addEventListener('click', () => {
+    setTheme(getTheme());
+    themeToggle && themeToggle.addEventListener('click', function() {
       const current = document.documentElement.getAttribute('data-theme') || 'light';
-      const newTheme = current === 'dark' ? 'light' : 'dark';
-      setTheme(newTheme);
+      setTheme(current === 'dark' ? 'light' : 'dark');
     });
-  }
+  })();
 </script>

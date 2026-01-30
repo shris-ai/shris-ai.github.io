@@ -16,7 +16,7 @@
   padding-left: 0;
   padding-right: 0;
   line-height: 1.3;
-  justify-self: anchor-center;
+  justify-self: center;
 }
 
 [data-theme="dark"] .page-dive-ins-heading-title {
