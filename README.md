@@ -2,6 +2,9 @@
 
 A personal blog built with Astro for better SEO and performance.
 
+**Live site:** [https://shris-ai.github.io](https://shris-ai.github.io) — Blog: [https://shris-ai.github.io/blog/](https://shris-ai.github.io/blog/)  
+*(This repo page is the source code; the link above is the deployed site.)*
+
 ## Features
 
 - Built with Astro for optimal SEO and performance

@@ -2293,10 +2293,10 @@ h1 {
   }
 }
 </style><title>Shristi Gautam - AI Solution Architect &amp; Researcher</title><script>
-      // Initialize theme immediately to prevent flash
+      // Initialize theme immediately to prevent flash (default: dark)
       (function() {
         const saved = localStorage.getItem('theme');
-        const theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        const theme = saved || 'dark';
         document.documentElement.setAttribute('data-theme', theme);
       })();
     </script><link rel="stylesheet" href="/_astro/_slug_.C203pqpV.css">
@@ -2306,8 +2306,7 @@ h1 {
     const themeToggle = document.getElementById('theme-toggle');
     const getTheme = function() {
       const saved = localStorage.getItem('theme');
-      if (saved) return saved;
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      return saved || 'dark';
     };
     const setTheme = function(theme) {
       document.documentElement.setAttribute('data-theme', theme);

@@ -324,11 +324,14 @@ const collectionSchema = {
       el?.addEventListener('input', updateFilters);
     });
 
-    document.addEventListener('click', (e) => {
-      if (filterPanel?.classList.contains('page-dive-ins-filter-panel--open') &&
-          !filterPanel.contains(e.target) && !filterTrigger?.contains(e.target)) {
-        closePanel();
-      }
+    var dateInputs = [publishedFrom, publishedTo, reviewedFrom, reviewedTo];
+    document.addEventListener('click', function(e) {
+      if (!filterPanel || !filterPanel.classList.contains('page-dive-ins-filter-panel--open')) return;
+      if (filterPanel.contains(e.target) || (filterTrigger && filterTrigger.contains(e.target))) return;
+      var active = document.activeElement;
+      var activeIsDateInput = dateInputs.some(function(el) { return el && active === el; });
+      if (activeIsDateInput) return;
+      closePanel();
     });
 
     updateFilters();
