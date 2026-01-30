@@ -104,6 +104,7 @@ const ogImage = paper ? (paper.img.src.startsWith('http') ? paper.img.src : `${s
   tags={paper?.tags || []}
   ogImage={ogImage}
   ogImageAlt={paper?.img.alt || paper?.title}
+  stackEdit={true}
 >
   {articleSchema && (
     <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />

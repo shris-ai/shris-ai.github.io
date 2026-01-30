@@ -89,6 +89,7 @@ const publishedTime = post ? (parseDateToISO(post.publishedDate) || new Date().t
   tags={post?.tags ?? []}
   ogImage={ogImage}
   ogImageAlt={post?.img?.alt ?? post?.title}
+  stackEdit={true}
 >
   {articleSchema && (
     <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />

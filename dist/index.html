@@ -1,4 +1,558 @@
-<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="description" content="AI Solution Architect, aspiring researcher, and lifelong learner exploring the latest advancements in artificial intelligence."><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="Astro v4.16.19"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://shris-ai.github.io/"><meta property="og:title" content="Shristi Gautam - AI Solution Architect &#38; Researcher"><meta property="og:description" content="AI Solution Architect, aspiring researcher, and lifelong learner exploring the latest advancements in artificial intelligence."><meta property="og:image" content="https://shris-ai.github.io//assets/bio_image_1.jpg"><meta property="og:image:alt" content="Shristi Gautam - AI Solution Architect &#38; Researcher"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:site_name" content="Shristi Gautam"><!-- Twitter --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:url" content="https://shris-ai.github.io/"><meta name="twitter:title" content="Shristi Gautam - AI Solution Architect &#38; Researcher"><meta name="twitter:description" content="AI Solution Architect, aspiring researcher, and lifelong learner exploring the latest advancements in artificial intelligence."><meta name="twitter:image" content="https://shris-ai.github.io//assets/bio_image_1.jpg"><meta name="twitter:image:alt" content="Shristi Gautam - AI Solution Architect &#38; Researcher"><!-- Article specific meta tags --><!-- Author --><meta name="author" content="Shristi Gautam"><link rel="canonical" href="https://shris-ai.github.io/"><link rel="icon" type="image/png" href="/assets/logo.png"><link rel="stylesheet" href="https://stackedit.io/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css"><title>Shristi Gautam - AI Solution Architect &amp; Researcher</title><script>
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="description" content="AI Solution Architect, aspiring researcher, and lifelong learner exploring the latest advancements in artificial intelligence."><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="Astro v4.16.19"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://shris-ai.github.io/"><meta property="og:title" content="Shristi Gautam - AI Solution Architect &#38; Researcher"><meta property="og:description" content="AI Solution Architect, aspiring researcher, and lifelong learner exploring the latest advancements in artificial intelligence."><meta property="og:image" content="https://shris-ai.github.io//assets/bio_image_1.jpg"><meta property="og:image:alt" content="Shristi Gautam - AI Solution Architect &#38; Researcher"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:site_name" content="Shristi Gautam"><!-- Twitter --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:url" content="https://shris-ai.github.io/"><meta name="twitter:title" content="Shristi Gautam - AI Solution Architect &#38; Researcher"><meta name="twitter:description" content="AI Solution Architect, aspiring researcher, and lifelong learner exploring the latest advancements in artificial intelligence."><meta name="twitter:image" content="https://shris-ai.github.io//assets/bio_image_1.jpg"><meta name="twitter:image:alt" content="Shristi Gautam - AI Solution Architect &#38; Researcher"><!-- Article specific meta tags --><!-- Author --><meta name="author" content="Shristi Gautam"><link rel="canonical" href="https://shris-ai.github.io/"><link rel="icon" type="image/png" href="/assets/logo.png"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css"><!-- Critical CSS inlined so fonts, accent colors, .app-struct, TopBar, Breadcrumb work even if _astro fails --><style>/* Global: layout, base elements, shared content box */
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Light mode colors */
+  --bg-primary: #F6F6DF;
+  --bg-secondary: #ffffff;
+  --text-primary: #1f2937;
+  --text-secondary: #4b5563;
+  --border-color: rgba(0, 0, 0, 0.1);
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --link-color: slateblue;
+  --link-hover: #4a3f91;
+}
+
+[data-theme="dark"] {
+  /* Dark mode colors */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --text-primary: #e5e5e5;
+  --text-secondary: #a3a3a3;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --link-color: #818cf8;
+  --link-hover: #a5b4fc;
+}
+
+a {
+  font-weight: 500;
+  color: var(--link-color);
+  text-decoration: inherit;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--link-hover);
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: monospace;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Shared content box used across pages */
+.app-struct {
+  justify-self: center;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  margin: 20px;
+  padding: 15px;
+  width: 100%;
+  max-width: 95%;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  overflow-wrap: break-word;
+  white-space: normal;
+  display: block;
+  line-height: 1.6;
+  font-size: 1rem;
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+@font-face {
+  font-family: 'AnaktoriaRegular';
+  src: url('/fonts/Anaktoria/Anaktoria.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Shared: page container, page title, tags, paper card layout */
+
+/* Main page wrapper with grid background */
+.page-container {
+  width: 95vw;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+  margin-top: 25px;
+  background-size: 30px 30px;
+  background-color: var(--bg-primary, #F6F6DF);
+  background-image:
+    linear-gradient(to right, rgba(173, 216, 230, 0.3) 0.5px, transparent 0.7px),
+    linear-gradient(to bottom, rgba(173, 216, 230, 0.3) 0.5px, transparent 0.7px);
+  transition: background-color 0.3s ease;
+}
+
+[data-theme="dark"] .page-container {
+  background-image:
+    linear-gradient(to right, rgba(100, 116, 139, 0.2) 0.5px, transparent 0.7px),
+    linear-gradient(to bottom, rgba(100, 116, 139, 0.2) 0.5px, transparent 0.7px);
+}
+
+.page-container.page-container--top-spacing {
+  margin-top: 70px;
+}
+
+/* Main page/heading title (slateblue, bold) */
+.page-title {
+  font-size: 1.7rem;
+  font-weight: bold;
+  color: slateblue;
+  margin-bottom: 1rem;
+  margin-left: 10px;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  margin-top: 70px;
+  transition: color 0.3s ease;
+}
+
+[data-theme="dark"] .page-title {
+  color: #a5b4fc;
+}
+
+.page-title.page-title--no-top-margin {
+  margin-top: 0;
+}
+
+/* Tag pill (nav / filter links) */
+.shared-tag-pill {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  background: var(--tag-bg, #ebf8ff);
+  color: var(--tag-text, #1e40af);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.shared-tag-pill:hover {
+  background: var(--tag-hover, #bee3f8);
+  text-decoration: none;
+}
+
+/* Tag chip (inline on cards) */
+.shared-tag-chip {
+  display: inline-block;
+  background-color: var(--tag-bg, #ebf8ff);
+  color: var(--tag-text, #1e40af);
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-right: 0.5rem;
+  padding: 0.125rem 0.625rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+/* Tag as link (e.g. paper meta row) */
+.shared-tag-link {
+  color: var(--tag-text, slateblue);
+  text-decoration: none;
+  padding: 0.2rem 0.5rem;
+  background: var(--tag-bg, #ebf8ff);
+  border-radius: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.shared-tag-link:hover {
+  background: var(--tag-hover, #bee3f8);
+  text-decoration: underline;
+}
+
+/* Paper list grid */
+.paper-list-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin-top: 30px;
+  gap: 1rem;
+}
+
+/* Paper card row (image + text) */
+.paper-card-layout {
+  display: grid;
+  grid-template-columns: 30% 70%;
+  padding: 10px;
+  align-items: center;
+}
+
+.paper-card-layout--bordered {
+  background: var(--bg-secondary, #ffffff);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow, 0 4px 6px rgba(0, 0, 0, 0.1));
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme="dark"] .paper-card-layout--bordered {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.paper-card-image-wrap {
+  width: 90%;
+  margin-bottom: 1rem;
+}
+
+.paper-card-image {
+  width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.paper-card-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #51153E;
+  margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+[data-theme="dark"] .paper-card-title {
+  color: #c4b5fd;
+}
+
+.paper-card-title--small {
+  font-size: 1.25rem;
+}
+
+.paper-card-meta {
+  margin-bottom: 0.5rem;
+}
+
+.paper-card-description {
+  color: var(--text-secondary, #374151);
+  transition: color 0.3s ease;
+}
+
+[data-theme="dark"] .paper-card-description {
+  color: var(--text-secondary);
+}
+
+.paper-card-description--small {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Card link (no underline, inherit color) */
+.paper-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+@media screen and (max-width: 768px) {
+  .page-container {
+    padding: 0.5rem;
+  }
+
+  .paper-card-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .page-container {
+    margin-top: 4rem;
+  }
+}
+
+/* TopBar component – unique prefix: topbar- */
+
+.topbar {
+  background-color: var(--bg-primary, #F6F6DF);
+  box-shadow: 0 2px 4px var(--border-color, rgba(0, 0, 0, 0.1));
+  position: fixed;
+  width: 100vw;
+  z-index: 10;
+  top: 0;
+  color: slateblue;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme="dark"] .topbar {
+  color: #a5b4fc;
+}
+
+.topbar__container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  border-bottom-style: outset;
+  box-sizing: border-box;
+}
+
+.topbar__content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 4rem;
+  padding: 0 max(1rem, 5%);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.topbar__title-wrap {
+  margin-left: 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.topbar__icon {
+  vertical-align: middle;
+  margin-right: 5px;
+  width: clamp(1.5rem, 2vw, 2rem);
+  height: auto;
+  flex-shrink: 0;
+}
+
+.topbar__title {
+  font-family: 'AnaktoriaRegular', sans-serif;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  font-weight: bold;
+  white-space: nowrap;
+  flex-shrink: 0;
+  color: slateblue;
+}
+
+.topbar__title--hindi {
+  font-family: 'AnaktoriaRegular', sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  margin-left: 0;
+  font-size: clamp(0.9rem, 2.3vw, 1.15rem);
+  flex-shrink: 0;
+}
+
+.topbar__links {
+  display: flex;
+  gap: clamp(0.5rem, 2vw, 2rem);
+  align-items: center;
+  flex-shrink: 1;
+}
+
+.topbar__link {
+  color: slateblue;
+  text-decoration: none;
+  font-size: clamp(0.875rem, 2vw, 1rem);
+  white-space: nowrap;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.topbar__link:hover {
+  color: #1f2937;
+}
+
+[data-theme="dark"] .topbar__link:hover {
+  color: #c4b5fd;
+}
+
+/* Show icon name on hover via title + custom tooltip */
+.topbar__link[title]::after {
+  content: attr(title);
+  position: absolute;
+  bottom: -1.75rem;
+  left: 50%;
+  transform: translateX(-50%) scale(0.95);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  background: var(--bg-secondary, #fff);
+  color: var(--text-primary, #1f2937);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
+  border-radius: 0.25rem;
+  box-shadow: var(--shadow, 0 2px 8px rgba(0, 0, 0, 0.1));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 20;
+}
+
+.topbar__link:hover[title]::after {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+.topbar__theme-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.topbar__theme-toggle[title]::after {
+  content: attr(title);
+  position: absolute;
+  bottom: -1.75rem;
+  left: 50%;
+  transform: translateX(-50%) scale(0.95);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  background: var(--bg-secondary, #fff);
+  color: var(--text-primary, #1f2937);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
+  border-radius: 0.25rem;
+  box-shadow: var(--shadow, 0 2px 8px rgba(0, 0, 0, 0.1));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 20;
+}
+
+.topbar__theme-toggle:hover[title]::after {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+.topbar__theme-toggle:hover {
+  opacity: 0.8;
+}
+
+.topbar__theme-toggle[data-theme="dark"] .topbar__icon--moon {
+  display: none;
+}
+
+.topbar__theme-toggle[data-theme="dark"] .topbar__icon--sun {
+  display: block !important;
+}
+
+.topbar__theme-toggle:not([data-theme="dark"]) .topbar__icon--sun {
+  display: none !important;
+}
+
+.topbar__theme-toggle:not([data-theme="dark"]) .topbar__icon--moon {
+  display: block;
+}
+
+@media screen and (max-width: 768px) {
+  .topbar__content {
+    padding: 0 0.75rem;
+  }
+
+  .topbar__links {
+    gap: 0.75rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .topbar {
+    width: 100vw;
+  }
+
+  .topbar__content {
+    height: 3.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .topbar__links {
+    gap: 0.5rem;
+  }
+
+  .topbar__title {
+    font-size: 0.9rem;
+  }
+
+  .topbar__title--hindi {
+    font-size: 0.85rem;
+  }
+}
+
+/* Breadcrumb component – unique prefix: breadcrumb- */
+
+.breadcrumb {
+  background: var(--bg-secondary, #ffffff);
+  margin: 0;
+  padding: 0;
+  padding-top: 4rem; /* clear fixed navbar */
+  width: 100%;
+  box-shadow: 0 1px 0 var(--border-color, rgba(0, 0, 0, 0.05));
+  position: absolute;
+  top: 10px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.breadcrumb__inner {
+  font-size: 0.9rem;
+  color: var(--text-secondary, #4b5563);
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+  max-width: 95vw;
+  box-sizing: border-box;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb__inner a {
+  color: slateblue;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb__inner a:hover {
+  text-decoration: underline;
+}
+
+[data-theme="dark"] .breadcrumb__inner a {
+  color: #a5b4fc;
+}
+
+.breadcrumb__separator {
+  margin: 0 0.5rem;
+  color: #9ca3af;
+}
+
+.breadcrumb__current {
+  color: slateblue;
+  font-weight: 500;
+  max-width: 60ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: bottom;
+}
+
+[data-theme="dark"] .breadcrumb__current {
+  color: #a5b4fc;
+}
+</style><title>Shristi Gautam - AI Solution Architect &amp; Researcher</title><script>
       // Initialize theme immediately to prevent flash
       (function() {
         const saved = localStorage.getItem('theme');
