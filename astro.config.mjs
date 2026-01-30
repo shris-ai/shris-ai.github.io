@@ -1,6 +1,6 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
-// Sitemap temporarily disabled due to build error; re-enable when @astrojs/sitemap is fixed
+// Sitemap disabled: @astrojs/sitemap throws "Cannot read properties of undefined (reading 'reduce')" at build
 // import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config

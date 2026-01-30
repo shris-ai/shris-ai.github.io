@@ -32,8 +32,17 @@ export function parseDateForFilter(dateStr: string): string | null {
   const s = dateStr.trim();
   // Year only: "2024" -> 2024-01-01
   if (/^\d{4}$/.test(s)) return `${s}-01-01`;
-  // Month name + year: "Jan 2025", "March 2024"
+  // Month name + day + year: "Feb 2, 2025", "March 15, 2024"
   const months: Record<string, string> = { jan: '01', feb: '02', mar: '03', apr: '04', may: '05', jun: '06', jul: '07', aug: '08', sep: '09', oct: '10', nov: '11', dec: '12' };
+  const matchDay = s.match(/^([a-zA-Z]+)\s+(\d{1,2}),?\s+(\d{4})$/);
+  if (matchDay) {
+    const monthKey = matchDay[1].toLowerCase().slice(0, 3);
+    const day = matchDay[2].padStart(2, '0');
+    const year = matchDay[3];
+    const month = months[monthKey] || '01';
+    return `${year}-${month}-${day}`;
+  }
+  // Month name + year: "Jan 2025", "March 2024"
   const match = s.match(/^([a-zA-Z]+)\s+(\d{4})$/);
   if (match) {
     const monthKey = match[1].toLowerCase().slice(0, 3);
@@ -44,6 +53,12 @@ export function parseDateForFilter(dateStr: string): string | null {
   // YYYY-MM or YYYY-MM-DD already
   if (/^\d{4}-\d{2}(-\d{2})?$/.test(s)) return s.length === 10 ? s : `${s}-01`;
   return null;
+}
+
+/** Parse display date to ISO 8601 for schema.org (e.g. "Jan 2025" -> "2025-01-01"). Returns null if unparseable. */
+export function parseDateToISO(dateStr: string | undefined): string | null {
+  const ymd = parseDateForFilter(dateStr || '');
+  return ymd ? `${ymd}T00:00:00.000Z` : null;
 }
 
 export function getTagDisplayName(tagSlug: string): string {

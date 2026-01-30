@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://shris-ai.github.io/</loc><changefreq>monthly</changefreq><priority>1</priority></url>
+  <url><loc>https://shris-ai.github.io/paper-dive-ins/</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://shris-ai.github.io/blog/</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://shris-ai.github.io/blog/reasoning-in-llms-the-role-of-test-time-compute/</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shris-ai.github.io/labs/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shris-ai.github.io/labs/scholar-scout/</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://shris-ai.github.io/labs/tutor-ai/</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://shris-ai.github.io/newsletter/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shris-ai.github.io/paper-breakdown/corag-chain-of-retrieval-augmented-generation/</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://shris-ai.github.io/paper-breakdown/titans-learning-to-memorize-at-test-time/</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://shris-ai.github.io/paper-breakdown/coconut-training-large-language-models-to-reason-in-a-continuous-latent-space/</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://shris-ai.github.io/paper-breakdown/dspy-compiling-declarative-language-model-calls-into-self-improving-pipelines/</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://shris-ai.github.io/paper-breakdown/program-of-thoughts-prompting-disentangling-computation-from-reasoning-for-numerical-reasoning-tasks/</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://shris-ai.github.io/tags/ai/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://shris-ai.github.io/tags/machine-learning/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://shris-ai.github.io/tags/nlp/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+</urlset>
