@@ -1,8 +1,47 @@
-# React + Vite
+# Shristi Gautam's Personal Blog
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A personal blog built with Astro for better SEO and performance.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Built with Astro for optimal SEO and performance
+- Static site generation
+- Research paper deep dives
+- Responsive design
+- GitHub Pages deployment ready
+
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+## Build
+
+```bash
+npm run build
+```
+
+## Deploy
+
+The site is configured for GitHub Pages deployment:
+
+```bash
+npm run build
+npm run deploy
+```
+
+## Project Structure
+
+```
+/
+├── public/          # Static assets
+├── src/
+│   ├── components/ # Astro components
+│   ├── layouts/    # Page layouts
+│   ├── pages/      # File-based routing
+│   ├── data/       # Data files
+│   └── assets/     # Images and fonts
+└── astro.config.mjs
+```

@@ -1,0 +1,267 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import TopBar from '../../components/TopBar.astro';
+import AuthorBio from '../../components/AuthorBio.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import papers from '../../data/papers.ts';
+import { getTagColorCSS } from '../../utils/tagColors.ts';
+import '../../styles/page-paper-breakdown.css';
+import {
+  getPaperSlug,
+  getRelatedPapers,
+  estimateReadingTime,
+  extractHeadingsAndAddIds,
+} from '../../utils/papers.ts';
+import fs from 'node:fs';
+import path from 'node:path';
+
+// Generate static paths for all papers
+export async function getStaticPaths() {
+  return papers.map((paper) => {
+    const slug = getPaperSlug(paper);
+    return {
+      params: { slug },
+      props: { paper }
+    };
+  });
+}
+
+const { slug } = Astro.params;
+const paper = Astro.props.paper || papers.find((p) => getPaperSlug(p) === slug);
+
+let content = '';
+let isHtml = false;
+let readingTimeMinutes = 0;
+let toc: { id: string; text: string; level: number }[] = [];
+
+if (paper) {
+  try {
+    const htmlFilePath = path.join(process.cwd(), paper.htmlFile);
+    if (fs.existsSync(htmlFilePath)) {
+      let rawContent = fs.readFileSync(htmlFilePath, 'utf-8');
+      rawContent = rawContent.replace(
+        /(["'])(\.?\/?)src\/routes\/PaperDiveIns\/papers\/assets\//g,
+        '$1/papers/assets/'
+      );
+      const { content: contentWithIds, toc: headings } = extractHeadingsAndAddIds(rawContent);
+      content = contentWithIds;
+      toc = headings;
+      readingTimeMinutes = estimateReadingTime(content);
+      isHtml = true;
+    }
+  } catch (error) {
+    console.error('Error loading file:', error);
+  }
+}
+
+const relatedPapers = paper ? getRelatedPapers(paper) : [];
+
+// Article Schema for SEO (timeRequired in ISO 8601 duration for reading time)
+const articleSchema = paper ? {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": paper.title,
+  "description": paper.description,
+  "image": paper.img.src.startsWith('http') ? paper.img.src : `https://shris-ai.github.io${paper.img.src}`,
+  "author": {
+    "@type": "Person",
+    "name": "Shristi Gautam",
+    "url": "https://shris-ai.github.io",
+    "sameAs": [
+      "https://www.linkedin.com/in/shristigautam/",
+      "https://github.com/shris-ai"
+    ]
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Shristi Gautam",
+    "url": "https://shris-ai.github.io"
+  },
+  "datePublished": new Date().toISOString(),
+  "dateModified": new Date().toISOString(),
+  "timeRequired": `PT${readingTimeMinutes}M`,
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": `https://shris-ai.github.io/paper-breakdown/${slug}`
+  },
+  "keywords": paper.tags.join(", "),
+  "articleSection": "AI Research",
+  "inLanguage": "en"
+} : null;
+
+const publishedTime = paper ? new Date().toISOString() : undefined;
+const siteURL = 'https://shris-ai.github.io';
+const ogImage = paper ? (paper.img.src.startsWith('http') ? paper.img.src : `${siteURL}${paper.img.src.startsWith('/') ? paper.img.src : '/' + paper.img.src}`) : undefined;
+---
+
+<Layout 
+  title={`${paper?.title || 'Paper Breakdown'} - Shristi Gautam`}
+  description={paper?.description}
+  type="article"
+  publishedTime={publishedTime}
+  author="Shristi Gautam"
+  tags={paper?.tags || []}
+  ogImage={ogImage}
+  ogImageAlt={paper?.img.alt || paper?.title}
+>
+  {articleSchema && (
+    <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  )}
+  <TopBar />
+  <Breadcrumb items={[
+    { label: 'Home', href: '/' },
+    { label: 'Paper Dive-Ins', href: '/paper-dive-ins' },
+    { label: paper?.title || 'Paper' }
+  ]} />
+  <div class="page-container page-breakdown-container">
+    <div class="page-breakdown-title-meta app-struct">
+      <h1 class="page-title page-title--no-top-margin">{paper?.title || 'Paper Breakdown'}</h1>
+      <div class="page-breakdown-meta-row">
+        <span class="page-breakdown-reading-time" aria-label="Estimated reading time">
+          {readingTimeMinutes} min read
+        </span>
+        {paper && paper.tags.length > 0 && (
+          <span class="page-breakdown-tags-inline">
+            {paper.tags.map((tag) => {
+              const tagSlug = tag.toLowerCase().replace(/\s+/g, '-');
+              const colorCSS = getTagColorCSS(tag);
+              return (
+                <a href={`/tags/${tagSlug}`} class="shared-tag-link" style={colorCSS}>{tag}</a>
+              );
+            })}
+          </span>
+        )}
+      </div>
+      {(paper?.publishedDate || paper?.sourceUrl || paper?.reviewedDate || paper?.status) && (
+        <dl class="page-breakdown-meta-details">
+          {paper.publishedDate && (
+            <div class="page-breakdown-meta-detail">
+              <dt>Published</dt>
+              <dd>{paper.publishedDate}</dd>
+            </div>
+          )}
+          {paper.sourceUrl && (
+            <div class="page-breakdown-meta-detail">
+              <dt>Source</dt>
+              <dd>
+                <a href={paper.sourceUrl} target="_blank" rel="noopener noreferrer" class="page-breakdown-source-link">
+                  {paper.sourceLabel || 'Link'}
+                </a>
+              </dd>
+            </div>
+          )}
+          {paper.reviewedDate && (
+            <div class="page-breakdown-meta-detail">
+              <dt>Reviewed</dt>
+              <dd>{paper.reviewedDate}</dd>
+            </div>
+          )}
+          {paper.status && (
+            <div class="page-breakdown-meta-detail">
+              <dt>Status</dt>
+              <dd><span class="page-breakdown-status">{paper.status}</span></dd>
+            </div>
+          )}
+        </dl>
+      )}
+    </div>
+    {toc.length > 0 && (
+      <nav class="page-breakdown-toc-mobile" aria-label="Table of contents">
+        <h2 class="page-breakdown-toc-title">On this page</h2>
+        <ul class="page-breakdown-toc-list">
+          {toc.map((entry) => (
+            <li class={`page-breakdown-toc-item page-breakdown-toc-level-${entry.level}`}>
+              <a href={`#${entry.id}`}>{entry.text}</a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
+    <div class="page-breakdown-content-wrapper app-struct" id="content-wrapper">
+      {toc.length > 0 && (
+        <nav class="page-breakdown-toc-sidebar" id="toc-sidebar" aria-label="Table of contents">
+          <div class="page-breakdown-toc-header">
+            <h2 class="page-breakdown-toc-title">On this page</h2>
+            <button class="page-breakdown-toc-close" id="toc-close" aria-label="Close table of contents">×</button>
+          </div>
+          <ul class="page-breakdown-toc-list">
+            {toc.map((entry) => (
+              <li class={`page-breakdown-toc-item page-breakdown-toc-level-${entry.level}`}>
+                <a href={`#${entry.id}`}>{entry.text}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
+      <div class="page-breakdown-markdown">
+        {toc.length > 0 && (
+          <button class="page-breakdown-toc-toggle" id="toc-toggle" aria-label="Toggle table of contents" aria-expanded="false">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+        )}
+        {isHtml ? (
+          <Fragment set:html={content} />
+        ) : (
+          <p>Content not found. Please go back to <a href="/paper-dive-ins">Paper Dive-Ins</a>.</p>
+        )}
+      </div>
+    </div>
+    <AuthorBio />
+    {relatedPapers.length > 0 && (
+      <section class="page-breakdown-related" aria-label="Related papers">
+        <h2 class="page-breakdown-related-title">Related papers</h2>
+        <ul class="page-breakdown-related-list">
+          {relatedPapers.map((p) => {
+            const pSlug = getPaperSlug(p);
+            return (
+              <li>
+                <a href={`/paper-breakdown/${pSlug}`} class="page-breakdown-related-link">
+                  {p.title}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    )}
+  </div>
+</Layout>
+
+<script>
+  // TOC Toggle - sidebar opens inside the markdown content struct box only
+  if (typeof window !== 'undefined') {
+    const tocToggle = document.getElementById('toc-toggle');
+    const tocSidebar = document.getElementById('toc-sidebar');
+    const tocClose = document.getElementById('toc-close');
+    const contentWrapper = document.getElementById('content-wrapper');
+    const SIDEBAR_ACTIVE = 'page-breakdown-toc-sidebar--active';
+    const WRAPPER_OPEN = 'page-breakdown-content-wrapper--sidebar-open';
+
+    function openTOC() {
+      if (tocSidebar) tocSidebar.classList.add(SIDEBAR_ACTIVE);
+      if (contentWrapper) contentWrapper.classList.add(WRAPPER_OPEN);
+      if (tocToggle) tocToggle.setAttribute('aria-expanded', 'true');
+    }
+
+    function closeTOC() {
+      if (tocSidebar) tocSidebar.classList.remove(SIDEBAR_ACTIVE);
+      if (contentWrapper) contentWrapper.classList.remove(WRAPPER_OPEN);
+      if (tocToggle) tocToggle.setAttribute('aria-expanded', 'false');
+    }
+
+    if (tocToggle) tocToggle.addEventListener('click', openTOC);
+    if (tocClose) tocClose.addEventListener('click', closeTOC);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && tocSidebar?.classList.contains(SIDEBAR_ACTIVE)) closeTOC();
+    });
+
+    document.querySelectorAll('.page-breakdown-toc-sidebar .page-breakdown-toc-item a').forEach(link => {
+      link.addEventListener('click', () => setTimeout(closeTOC, 100));
+    });
+  }
+</script>
