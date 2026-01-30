@@ -1,6 +1,12 @@
 ---
 import '../styles/global.css';
 import '../styles/shared.css';
+import globalCss from '../styles/global.css?raw';
+import sharedCss from '../styles/shared.css?raw';
+import topBarCss from '../styles/TopBar.css?raw';
+import breadcrumbCss from '../styles/Breadcrumb.css?raw';
+
+const criticalCss = [globalCss, sharedCss, topBarCss, breadcrumbCss].join('\n');
 
 interface Props {
   title: string;
@@ -12,6 +18,8 @@ interface Props {
   publishedTime?: string;
   author?: string;
   tags?: string[];
+  /** Load StackEdit stylesheet (for article body content only). Omit on shell pages so our fonts/colors win. */
+  stackEdit?: boolean;
 }
 
 const { 
@@ -23,7 +31,8 @@ const {
   type = 'website',
   publishedTime,
   author = "Shristi Gautam",
-  tags = []
+  tags = [],
+  stackEdit = false
 } = Astro.props;
 const currentURL = canonicalURL || (Astro.site ? new URL(Astro.url.pathname, Astro.site) : Astro.url);
 const siteURL = Astro.site || 'https://shris-ai.github.io';
@@ -73,8 +82,10 @@ const fullOgImage = ogImage.startsWith('http') ? ogImage : `${siteURL}${ogImage.
     
     <link rel="canonical" href={currentURL} />
     <link rel="icon" type="image/png" href="/assets/logo.png" />
-    <link rel="stylesheet" href="https://stackedit.io/style.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+    <!-- Critical CSS inlined so fonts, accent colors, .app-struct, TopBar, Breadcrumb work even if _astro fails -->
+    <style is:inline set:html={criticalCss} />
+    {stackEdit && <link rel="stylesheet" href="https://stackedit.io/style.css" />}
     <title>{title}</title>
     <script is:inline>
       // Initialize theme immediately to prevent flash
