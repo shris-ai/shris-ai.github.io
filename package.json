@@ -10,7 +10,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "predeploy": "npm run build",
-    "deploy": "npx gh-pages -d dist"
+    "deploy": "npx gh-pages -d dist --dotfiles --nojekyll"
   },
   "dependencies": {
     "@astrojs/react": "^4.0.0",
