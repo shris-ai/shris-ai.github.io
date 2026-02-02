@@ -70,7 +70,7 @@ const articleSchema = post
       datePublished: parseDateToISO(post.publishedDate) || new Date().toISOString(),
       dateModified: parseDateToISO(post.publishedDate) || new Date().toISOString(),
       timeRequired: `PT${readingTimeMinutes}M`,
-      mainEntityOfPage: { '@type': 'WebPage', '@id': `${siteURL}/blog/${slug}` },
+      mainEntityOfPage: { '@type': 'WebPage', '@id': `${siteURL}/notes/${slug}` },
       keywords: post.tags.join(', '),
       articleSection: 'Blog',
       inLanguage: 'en',
@@ -98,7 +98,7 @@ const publishedTime = post ? (parseDateToISO(post.publishedDate) || new Date().t
   <Breadcrumb
     items={[
       { label: 'Home', href: '/' },
-      { label: 'Blog', href: '/blog' },
+      { label: 'Blog', href: '/notes' },
       { label: post?.title ?? 'Post' },
     ]}
   />
@@ -181,7 +181,7 @@ const publishedTime = post ? (parseDateToISO(post.publishedDate) || new Date().t
           <Fragment set:html={content} />
         ) : (
           <p>
-            Content not found. <a href="/blog">Back to Blog</a>.
+            Content not found. <a href="/notes">Back to Blog</a>.
           </p>
         )}
       </div>

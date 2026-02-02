@@ -1,59 +1,19 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import TopBar from '../../components/TopBar.astro';
-import Breadcrumb from '../../components/Breadcrumb.astro';
-import blogPosts, { getBlogSlug } from '../../data/blog.ts';
-import { getTagColorCSS } from '../../utils/tagColors.ts';
-import '../../styles/page-blog.css';
-
-const title = "Blog";
-const description = "Notes and long-form posts on AI, reasoning, and what I'm learning.";
+/**
+ * Redirect /blog/ → /notes/
+ * GitHub Pages/Jekyll treats the path "blog" specially and overrides our built page.
+ * The blog section lives at /notes/ so it works reliably; this page redirects old links.
+ */
 ---
-
-<Layout title={`${title} - Shristi Gautam`} description={description} ogImage="/assets/bio-image.jpg">
-  <TopBar />
-  <Breadcrumb items={[
-    { label: 'Home', href: '/' },
-    { label: 'Blog' }
-  ]} />
-  <div class="page-container page-blog-container">
-    <header class="page-blog-header app-struct">
-      <h1 class="page-title page-blog-title">{title}</h1>
-      <p class="page-blog-intro">
-        {description}
-      </p>
-    </header>
-    <div class="page-blog-list">
-      {blogPosts.map((post) => {
-        const slug = getBlogSlug(post);
-        return (
-          <a href={`/blog/${slug}`} class="page-blog-card app-struct">
-            {post.img && (
-              <div class="page-blog-card-image-wrap">
-                <img src={post.img.src} alt={post.img.alt} class="page-blog-card-image" loading="lazy" />
-              </div>
-            )}
-            <div class="page-blog-card-body">
-              <h2 class="page-blog-card-title">{post.title}</h2>
-              <p class="page-blog-card-description">{post.description}</p>
-              {post.publishedDate && (
-                <time class="page-blog-card-date" datetime={post.publishedDate}>{post.publishedDate}</time>
-              )}
-              {post.tags.length > 0 && (
-                <span class="page-blog-card-tags">
-                  {post.tags.map((tag) => {
-                    const colorCSS = getTagColorCSS(tag);
-                    return (
-                      <span class="page-blog-card-tag shared-tag-link" style={colorCSS}>{tag}</span>
-                    );
-                  })}
-                </span>
-              )}
-              <span class="page-blog-card-link">Read post →</span>
-            </div>
-          </a>
-        );
-      })}
-    </div>
-  </div>
-</Layout>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="refresh" content="0;url=/notes/" />
+    <link rel="canonical" href="https://shris-ai.github.io/notes/" />
+    <title>Redirect to Blog</title>
+  </head>
+  <body>
+    <p>Redirecting to <a href="/notes/">Blog (notes)</a>…</p>
+    <script>location.href = '/notes/';</script>
+  </body>
+</html>
