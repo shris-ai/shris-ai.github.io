@@ -34,7 +34,7 @@ npm run build
    npm run build
    npm run deploy
    ```
-   The deploy script uses `--dotfiles` and `--nojekyll` so GitHub Pages serves the built site as-is (no Jekyll processing). Without this, `/blog/` and other pages can show only a minimal “blog” heading.
+   Deploy runs `scripts/deploy.cjs`, which uses `dotfiles: true` and `nojekyll: true` so GitHub Pages serves the built site as-is (no Jekyll). Without this, `/blog/` and other pages can show only a minimal “blog” heading.
 
 2. **Set GitHub Pages to use `gh-pages` (required for the blog and all pages to work):**
    - On GitHub: open the repo → **Settings** → **Pages**.
@@ -45,13 +45,13 @@ npm run build
    If **Branch** is set to **main**, the blog and other built pages will not appear, because the repo root on `main` is source code, not the built site.
 
 3. **If the blog still doesn’t show (Pages is already on gh-pages):**
-   - **Re-deploy:** From your project root (on `main`), run:
+   - **Re-deploy** (this uses the script that adds `.nojekyll` and includes dotfiles):
      ```bash
      npm run build
-     npx gh-pages -d dist --force
+     npm run deploy
      ```
-     Then wait 1–2 minutes and open https://shris-ai.github.io/blog/ in an **incognito/private** window (to avoid cache).
-   - **Check gh-pages contents:** On GitHub, open the repo → switch the branch dropdown to **gh-pages** → confirm you see a **blog** folder and inside it **index.html**. If **blog** is missing, the deploy didn’t push the built site; run the commands above again.
+     Then wait 1–2 minutes and open https://shris-ai.github.io/blog/ in an **incognito/private** window.
+   - **Check gh-pages:** On GitHub → switch branch to **gh-pages** → confirm the root has a **blog** folder (with **index.html** inside) and that **.nojekyll** exists at the root (you may need to enable “Show hidden files” or check via the GitHub API). If `.nojekyll` is missing, Jekyll will run and the blog will show only “blog”.
 
 ## Project Structure
 
