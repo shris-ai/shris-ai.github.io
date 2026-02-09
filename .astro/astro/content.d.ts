@@ -146,14 +146,67 @@ declare module 'astro:content' {
   slug: "scholar-scout";
   body: string;
   collection: "labs";
-  data: any
+  data: InferEntrySchema<"labs">
 } & { render(): Render[".md"] };
 "tutor-ai.md": {
 	id: "tutor-ai.md";
   slug: "tutor-ai";
   body: string;
   collection: "labs";
-  data: any
+  data: InferEntrySchema<"labs">
+} & { render(): Render[".md"] };
+};
+"notes": {
+"reasoning-models-2025.md": {
+	id: "reasoning-models-2025.md";
+  slug: "reasoning-models-2025";
+  body: string;
+  collection: "notes";
+  data: InferEntrySchema<"notes">
+} & { render(): Render[".md"] };
+};
+"papers": {
+"2211-12588.md": {
+	id: "2211-12588.md";
+  slug: "2211-12588";
+  body: string;
+  collection: "papers";
+  data: InferEntrySchema<"papers">
+} & { render(): Render[".md"] };
+"2310-03714.md": {
+	id: "2310-03714.md";
+  slug: "2310-03714";
+  body: string;
+  collection: "papers";
+  data: InferEntrySchema<"papers">
+} & { render(): Render[".md"] };
+"2411-07763.md": {
+	id: "2411-07763.md";
+  slug: "2411-07763";
+  body: string;
+  collection: "papers";
+  data: InferEntrySchema<"papers">
+} & { render(): Render[".md"] };
+"2412-06769.md": {
+	id: "2412-06769.md";
+  slug: "2412-06769";
+  body: string;
+  collection: "papers";
+  data: InferEntrySchema<"papers">
+} & { render(): Render[".md"] };
+"2501-00663.md": {
+	id: "2501-00663.md";
+  slug: "2501-00663";
+  body: string;
+  collection: "papers";
+  data: InferEntrySchema<"papers">
+} & { render(): Render[".md"] };
+"2501-14342.md": {
+	id: "2501-14342.md";
+  slug: "2501-14342";
+  body: string;
+  collection: "papers";
+  data: InferEntrySchema<"papers">
 } & { render(): Render[".md"] };
 };
 
@@ -165,5 +218,5 @@ declare module 'astro:content' {
 
 	type AnyEntryMap = ContentEntryMap & DataEntryMap;
 
-	export type ContentConfig = never;
+	export type ContentConfig = typeof import("../../src/content/config.js");
 }

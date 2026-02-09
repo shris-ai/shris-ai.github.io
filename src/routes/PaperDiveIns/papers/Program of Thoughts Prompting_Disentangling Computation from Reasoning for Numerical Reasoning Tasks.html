@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -29,7 +29,7 @@
 </ol>
 <h1 id="program-of-thoughts-pot-prompting">Program of Thoughts (PoT) Prompting</h1>
 <p>Instead of expressing reasoning in <strong>natural language</strong>, PoT represents the thought process as a <strong>Python program</strong> with meaningful variable names. The model generates code that describes how to solve the problem, and then a <strong>Python interpreter executes the code</strong> to compute the final answer.</p>
-<img src="/papers/assets/Program of Thoughts Prompting_Disentangling Computation from Reasoning for Numerical Reasoning Tasks_1.png"/>
+<img src="/papers/2211-12588/Program of Thoughts Prompting_Disentangling Computation from Reasoning for Numerical Reasoning Tasks_1.png"/>
 <h2 id="how-pot-works"><strong>How PoT Works</strong></h2>
 <ul>
 <li>
@@ -51,7 +51,7 @@
 </li>
 </ul>
 <h2 id="key-differences-between-pot-and-cot">Key Differences Between PoT and CoT</h2>
-<img src="/papers/assets/Program of Thoughts Prompting_Disentangling Computation from Reasoning for Numerical Reasoning Tasks_0.png"/>
+<img src="/papers/2211-12588/Program of Thoughts Prompting_Disentangling Computation from Reasoning for Numerical Reasoning Tasks_0.png"/>
 <ul>
 <li>
 <p><strong>CoT:</strong> The LLM performs both reasoning and computation, which often leads to <strong>errors in arithmetic and complex equations</strong>.</p>
@@ -78,7 +78,7 @@
 </li>
 </ol>
 <p>For example, in a problem where two trains meet in <strong>2.05 hours</strong>, PoT can calculate this value correctly. However, if the answer requires converting <strong>2.05 hours into HH:MM format</strong>, CoT can be used to finalize the output.</p>
-<img src="/papers/assets/Program of Thoughts Prompting_Disentangling Computation from Reasoning for Numerical Reasoning Tasks_2.png"/>
+<img src="/papers/2211-12588/Program of Thoughts Prompting_Disentangling Computation from Reasoning for Numerical Reasoning Tasks_2.png"/>
 <p>This combined approach is particularly useful for datasets like <strong>AQuA</strong>, where answers need additional formatting, while most other datasets can be solved with PoT alone.</p>
 <h2 id="experimental-results"><strong>Experimental Results</strong></h2>
 <p>PoT was tested on <strong>five MWP datasets</strong> (GSM8K, AQuA, SVAMP, TabMWP, MultiArith) and <strong>three financial datasets</strong> (FinQA, ConvFinQA, TATQA). These datasets include different formats like <strong>text, tables, and conversations</strong>.</p>
@@ -97,7 +97,7 @@
 <p><strong>PoT + Self-Consistency (PoT+SC)</strong> beats <strong>CoT+SC</strong> by an <strong>average of 10%</strong>, achieving the <strong>best-known results</strong> on MWP datasets and nearly the best on financial datasets (excluding GPT-4).</p>
 </li>
 </ul>
-<img src="/papers/assets/Program of Thoughts Prompting_Disentangling Computation from Reasoning for Numerical Reasoning Tasks_3.png"/>
+<img src="/papers/2211-12588/Program of Thoughts Prompting_Disentangling Computation from Reasoning for Numerical Reasoning Tasks_3.png"/>
 <h1 id="summary-of-experiments">Summary of Experiments</h1>
 <h2 id="experimental-setup">Experimental Setup</h2>
 <h3 id="datasets-used">Datasets Used</h3>

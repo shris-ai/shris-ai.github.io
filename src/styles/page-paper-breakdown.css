@@ -121,6 +121,13 @@
 
 .page-breakdown-markdown {
   padding: 2rem;
+  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+}
+
+/* Hide all h1 in paper content; page title is already shown above */
+.page-breakdown-markdown :global(h1),
+.page-breakdown-content-wrapper .page-breakdown-markdown :global(h1) {
+  display: none !important;
 }
 
 .page-breakdown-markdown blockquote {

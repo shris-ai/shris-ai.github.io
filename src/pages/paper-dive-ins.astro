@@ -2,14 +2,17 @@
 import Layout from '../layouts/Layout.astro';
 import TopBar from '../components/TopBar.astro';
 import Breadcrumb from '../components/Breadcrumb.astro';
-import papers from '../data/papers.ts';
-import { getAllTags, parseDateForFilter } from '../utils/papers.ts';
+import { getCollection } from 'astro:content';
+import { parseDateForFilter } from '../utils/papers.ts';
 import { getTagColorCSS } from '../utils/tagColors.ts';
 import '../styles/page-paper-dive-ins.css';
 
 const title = "Deep Dives into AI Research";
 const description = "Explore various research papers and their implications in the field of AI and machine learning.";
-const allTags = getAllTags();
+const papers = await getCollection('papers');
+const allTags = Array.from(
+  new Set(papers.flatMap((p) => p.data.tags || []))
+).sort();
 
 // CollectionPage Schema for SEO
 const collectionSchema = {
@@ -20,19 +23,16 @@ const collectionSchema = {
   "url": "https://shris-ai.github.io/paper-dive-ins",
   "mainEntity": {
     "@type": "ItemList",
-    "itemListElement": papers.map((paper, index) => {
-      const slug = paper.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      return {
-        "@type": "ListItem",
-        "position": index + 1,
-        "item": {
-          "@type": "Article",
-          "name": paper.title,
-          "description": paper.description,
-          "url": `https://shris-ai.github.io/paper-breakdown/${slug}`
-        }
-      };
-    })
+    "itemListElement": papers.map((entry, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "Article",
+        "name": entry.data.title,
+        "description": entry.data.description ?? entry.data.title,
+        "url": `https://shris-ai.github.io/paper-breakdown/${entry.slug}`
+      }
+    }))
   }
 };
 ---
@@ -121,16 +121,15 @@ const collectionSchema = {
       </div>
     </div>
     <div class="paper-list-grid page-dive-ins-list-grid" id="paper-list">
-      {papers.map((paper) => {
-        const slug = paper.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        const paperTags = paper.tags.join(',').toLowerCase();
+      {papers.map((entry) => {
+        const paperTags = (entry.data.tags || []).join(',').toLowerCase();
         return (
-        <article key={paper.title.replace(" ", "")} class="page-dive-ins-paper-item page-dive-ins-card app-struct" data-tags={paperTags} data-published-iso={parseDateForFilter(paper.publishedDate || '') || ''} data-reviewed-iso={parseDateForFilter(paper.reviewedDate || '') || ''}>
-          <a href={`/paper-breakdown/${slug}`} class="page-dive-ins-card-link">
-            <h2 class="page-dive-ins-card-title">{paper.title}</h2>
+        <article key={entry.slug} class="page-dive-ins-paper-item page-dive-ins-card app-struct" data-tags={paperTags} data-published-iso={parseDateForFilter(entry.data.publishedDate || '') || ''} data-reviewed-iso={parseDateForFilter(entry.data.dateOfReview ?? entry.data.reviewedDate ?? '') || ''}>
+          <a href={`/paper-breakdown/${entry.slug}`} class="page-dive-ins-card-link">
+            <h2 class="page-dive-ins-card-title">{entry.data.title}</h2>
           </a>
           <div class="page-dive-ins-card-meta">
-            {paper.tags.map((tag) => {
+            {(entry.data.tags || []).map((tag: string) => {
               const colorCSS = getTagColorCSS(tag);
               return (
                 <span key={tag} class="shared-tag-chip" style={colorCSS}>{tag}</span>
@@ -138,32 +137,26 @@ const collectionSchema = {
             })}
           </div>
           <dl class="page-dive-ins-card-details">
-            {paper.publishedDate && (
+            {entry.data.publishedDate && (
               <div class="page-dive-ins-card-detail">
                 <dt>Published</dt>
-                <dd>{paper.publishedDate}</dd>
+                <dd>{entry.data.publishedDate}</dd>
               </div>
             )}
-            {paper.sourceUrl && (
+            {entry.data.sourceUrl && (
               <div class="page-dive-ins-card-detail">
                 <dt>Source</dt>
                 <dd>
-                  <a href={paper.sourceUrl} target="_blank" rel="noopener noreferrer" class="page-dive-ins-source-link">
-                    {paper.sourceLabel || 'Link'}
+                  <a href={entry.data.sourceUrl} target="_blank" rel="noopener noreferrer" class="page-dive-ins-source-link">
+                    {entry.data.sourceLabel || 'Link'}
                   </a>
                 </dd>
               </div>
             )}
-            {paper.reviewedDate && (
+            {(entry.data.dateOfReview ?? entry.data.reviewedDate) && (
               <div class="page-dive-ins-card-detail">
                 <dt>Reviewed</dt>
-                <dd>{paper.reviewedDate}</dd>
-              </div>
-            )}
-            {paper.status && (
-              <div class="page-dive-ins-card-detail">
-                <dt>Status</dt>
-                <dd><span class="page-dive-ins-status">{paper.status}</span></dd>
+                <dd>{entry.data.dateOfReview ?? entry.data.reviewedDate}</dd>
               </div>
             )}
           </dl>

@@ -2,12 +2,14 @@
 import Layout from '../../layouts/Layout.astro';
 import TopBar from '../../components/TopBar.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
-import blogPosts, { getBlogSlug } from '../../data/blog.ts';
+import { getCollection } from 'astro:content';
+import { getCoverImageUrl } from '../../utils/coverImage.ts';
 import { getTagColorCSS } from '../../utils/tagColors.ts';
 import '../../styles/page-blog.css';
 
 const title = "Blog";
 const description = "Notes and long-form posts on AI, reasoning, and what I'm learning.";
+const notes = await getCollection('notes');
 ---
 
 <Layout title={`${title} - Shristi Gautam`} description={description} ogImage="/assets/bio-image.jpg">
@@ -24,36 +26,31 @@ const description = "Notes and long-form posts on AI, reasoning, and what I'm le
       </p>
     </header>
     <div class="page-blog-list">
-      {blogPosts.map((post) => {
-        const slug = getBlogSlug(post);
-        return (
-          <a href={`/notes/${slug}`} class="page-blog-card app-struct">
-            {post.img && (
-              <div class="page-blog-card-image-wrap">
-                <img src={post.img.src} alt={post.img.alt} class="page-blog-card-image" loading="lazy" />
-              </div>
+      {notes.map((entry) => (
+        <a href={`/notes/${entry.slug}`} class="page-blog-card app-struct">
+          <div class="page-blog-card-image-wrap">
+            <img src={getCoverImageUrl('notes', entry.slug)} alt="" class="page-blog-card-image" loading="lazy" />
+          </div>
+          <div class="page-blog-card-body">
+            <h2 class="page-blog-card-title">{entry.data.title}</h2>
+            <p class="page-blog-card-description">{entry.data.description}</p>
+            {entry.data.publishedDate && (
+              <time class="page-blog-card-date" datetime={entry.data.publishedDate}>{entry.data.publishedDate}</time>
             )}
-            <div class="page-blog-card-body">
-              <h2 class="page-blog-card-title">{post.title}</h2>
-              <p class="page-blog-card-description">{post.description}</p>
-              {post.publishedDate && (
-                <time class="page-blog-card-date" datetime={post.publishedDate}>{post.publishedDate}</time>
-              )}
-              {post.tags.length > 0 && (
-                <span class="page-blog-card-tags">
-                  {post.tags.map((tag) => {
-                    const colorCSS = getTagColorCSS(tag);
-                    return (
-                      <span class="page-blog-card-tag shared-tag-link" style={colorCSS}>{tag}</span>
-                    );
-                  })}
-                </span>
-              )}
-              <span class="page-blog-card-link">Read post →</span>
-            </div>
-          </a>
-        );
-      })}
+            {entry.data.tags?.length > 0 && (
+              <span class="page-blog-card-tags">
+                {entry.data.tags.map((tag: string) => {
+                  const colorCSS = getTagColorCSS(tag);
+                  return (
+                    <span class="page-blog-card-tag shared-tag-link" style={colorCSS}>{tag}</span>
+                  );
+                })}
+              </span>
+            )}
+            <span class="page-blog-card-link">Read post →</span>
+          </div>
+        </a>
+      ))}
     </div>
   </div>
 </Layout>

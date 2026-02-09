@@ -1,4 +1,11 @@
-![ScholarScout](/labs/assets/ScholarScout_1.png)
+---
+title: ScholarScout
+description: Multi-agent AI system for research discovery and analysis. Find, filter, and engage with relevant academic papers using advanced AI techniques.
+createdDate: Mar 5, 2025
+updatedDate: Mar 5, 2025
+---
+
+![ScholarScout](/labs/scholar-scout/ScholarScout_1.png)
 
 ScholarScout is a multi-agent AI system that simplifies research discovery and analysis. It helps you to find, filter, and engage with the most relevant academic papers using advanced AI techniques. Multiple agents work together to provide real-time research updates, in-depth paper analysis, and contextual conversations.
 

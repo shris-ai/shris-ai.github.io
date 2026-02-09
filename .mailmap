@@ -1,0 +1,9 @@
+# Map all commit identities to the canonical shris-ai contributor.
+# Format: Canonical Name <canonical@email> Other Name <other@email>
+# GitHub uses this to consolidate the Contributors list.
+Shristi Gautam <44741669+shris-ai@users.noreply.github.com> Shristi Gautam <44741669+shris-ai@users.noreply.github.com>
+Shristi Gautam <44741669+shris-ai@users.noreply.github.com> shris-ai <44741669+shris-ai@users.noreply.github.com>
+Shristi Gautam <44741669+shris-ai@users.noreply.github.com> shris-ai <shristigautam13@gmail.com>
+Shristi Gautam <44741669+shris-ai@users.noreply.github.com> shristigautam13 <44741669+shristigautam13@users.noreply.github.com>
+# If "shristur" appears on GitHub, add a line here with that commit email, e.g.:
+# Shristi Gautam <44741669+shris-ai@users.noreply.github.com> shristur <shristur@example.com>

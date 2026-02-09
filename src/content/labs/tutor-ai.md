@@ -1,3 +1,10 @@
+---
+title: tutorAI
+description: AI-powered course creation and lesson planning. Generate structured outlines and translate educational materials into native Indian languages.
+createdDate: Oct 3, 2024
+updatedDate: Oct 3, 2024
+---
+
 <div class="lab-video-wrap">
   <iframe src="https://drive.google.com/file/d/1TQfGKtPdTUlSsJX2oTSL9hGBxXcOBFFK/preview" allow="autoplay"></iframe>
 </div>

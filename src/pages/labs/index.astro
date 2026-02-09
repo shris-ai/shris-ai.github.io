@@ -2,11 +2,13 @@
 import Layout from '../../layouts/Layout.astro';
 import TopBar from '../../components/TopBar.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
-import labs from '../../data/labs.ts';
+import { getCollection } from 'astro:content';
+import { getCoverImageUrl } from '../../utils/coverImage.ts';
 import '../../styles/page-labs.css';
 
 const title = "Labs";
 const description = "AI experiments and projects—ScholarScout, tutorAI, and more.";
+const labs = await getCollection('labs');
 ---
 
 <Layout title={`${title} - Shristi Gautam`} description={description} ogImage="/assets/bio-image.jpg">
@@ -23,25 +25,27 @@ const description = "AI experiments and projects—ScholarScout, tutorAI, and mo
       </p>
     </header>
     <div class="page-labs-grid">
-      {labs.map((lab) => (
-        <a href={`/labs/${lab.slug}`} class="page-labs-card app-struct">
-          {lab.image && (
-            <div class="page-labs-card-image-wrap">
-              <img src={lab.image} alt="" class="page-labs-card-image" loading="lazy" />
-            </div>
-          )}
+      {labs.map((entry) => (
+        <a href={`/labs/${entry.slug}`} class="page-labs-card app-struct">
+          <div class="page-labs-card-image-wrap">
+            <img src={getCoverImageUrl('labs', entry.slug)} alt="" class="page-labs-card-image" loading="lazy" />
+          </div>
           <div class="page-labs-card-body">
-            <h2 class="page-labs-card-title">{lab.title}</h2>
-            <p class="page-labs-card-description">{lab.description}</p>
+            <h2 class="page-labs-card-title">{entry.data.title}</h2>
+            <p class="page-labs-card-description">{entry.data.description}</p>
             <dl class="page-labs-card-dates">
-              <div class="page-labs-card-date-item">
-                <dt>Created</dt>
-                <dd>{lab.createdDate}</dd>
-              </div>
-              <div class="page-labs-card-date-item">
-                <dt>Updated</dt>
-                <dd>{lab.updatedDate}</dd>
-              </div>
+              {entry.data.createdDate && (
+                <div class="page-labs-card-date-item">
+                  <dt>Created</dt>
+                  <dd>{entry.data.createdDate}</dd>
+                </div>
+              )}
+              {entry.data.updatedDate && (
+                <div class="page-labs-card-date-item">
+                  <dt>Updated</dt>
+                  <dd>{entry.data.updatedDate}</dd>
+                </div>
+              )}
             </dl>
             <span class="page-labs-card-link">View project →</span>
           </div>

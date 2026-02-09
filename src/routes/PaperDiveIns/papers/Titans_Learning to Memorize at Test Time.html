@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -156,7 +156,7 @@ Where:<br>
 <h1 id="titan-variants-to-incorporate-memory-in-the-architecture">Titan Variants to Incorporate Memory in the Architecture</h1>
 <p>The memory is structured to capture <strong>short-term</strong>, <strong>long-term</strong>, and <strong>persistent</strong> information, mimicking how humans process and retain information. The Titans architecture integrates several key components to address the challenges of long-term memory, short-term memory, and task-specific persistence in deep learning models.The authors propose three different variants of the architecture, each with distinct ways to incorporate memory: <strong>Memory as Context (MAC)</strong>, <strong>Memory as Gating (MAG)</strong>, and <strong>Memory as a Layer (MAL)</strong>.</p>
 <h3 id="memory-as-context-mac"><strong>1. Memory as Context (MAC)</strong></h3>
-<img src="/src/routes/PaperDiveIns/papers/assets/Titans_Learning to Memorize at Test Time_2.png" />
+<img src="/papers/2501-00663/Titans_Learning to Memorize at Test Time_2.png" />
 <p>This design treats memory as part of the input context. It integrates <strong>persistent memory</strong>, <strong>long-term memory</strong>, and the current input into a single sequence processed by the attention mechanism.</p>
 <h4 id="components-and-workflow">Components and Workflow:</h4>
 <ol>
@@ -233,7 +233,7 @@ Where:<br>
 </li>
 </ul>
 <h3 id="memory-as-gating-mag"><strong>2. Memory as Gating (MAG)</strong></h3>
-<img src="/src/routes/PaperDiveIns/papers/assets/Titans_Learning to Memorize at Test Time_3.png" />
+<img src="/papers/2501-00663/Titans_Learning to Memorize at Test Time_3.png" />
 <p>This design combines <strong>short-term memory</strong> (using sliding window attention) and <strong>long-term memory</strong> through a gating mechanism, providing flexibility in how the model processes data.</p>
 <h4 id="components-and-workflow-1">Components and Workflow:</h4>
 <ol>
@@ -278,7 +278,7 @@ Where:<br>
 </ul>
 <hr>
 <h3 id="memory-as-a-layer-mal"><strong>3. Memory as a Layer (MAL)</strong></h3>
-<img src="/src/routes/PaperDiveIns/papers/assets/Titans_Learning to Memorize at Test Time_4.png" />
+<img src="/papers/2501-00663/Titans_Learning to Memorize at Test Time_4.png" />
 <p>This design integrates the memory module directly as a layer in the network. The memory processes the input before passing it to the attention mechanism.</p>
 <h4 id="components-and-workflow-2">Components and Workflow:</h4>
 <ol>

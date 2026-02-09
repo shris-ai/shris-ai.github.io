@@ -3,115 +3,88 @@ import Layout from '../../layouts/Layout.astro';
 import TopBar from '../../components/TopBar.astro';
 import AuthorBio from '../../components/AuthorBio.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
-import blogPosts, { getBlogSlug } from '../../data/blog.ts';
+import { getCollection, render } from 'astro:content';
+import { getCoverImageUrl } from '../../utils/coverImage.ts';
 import { getTagColorCSS } from '../../utils/tagColors.ts';
+import { parseDateToISO } from '../../utils/papers.ts';
 import '../../styles/page-paper-breakdown.css';
-import { estimateReadingTime, extractHeadingsAndAddIds, parseDateToISO } from '../../utils/papers.ts';
-import fs from 'node:fs';
-import path from 'node:path';
 
 export async function getStaticPaths() {
-  return blogPosts.map((post) => {
-    const slug = getBlogSlug(post);
-    return {
-      params: { slug },
-      props: { post },
-    };
-  });
+  const notes = await getCollection('notes');
+  return notes.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
 }
 
 const { slug } = Astro.params;
-const post = Astro.props.post ?? blogPosts.find((p) => getBlogSlug(p) === slug);
-
-let content = '';
-let isHtml = false;
-let readingTimeMinutes = 0;
-let toc: { id: string; text: string; level: number }[] = [];
-
-if (post) {
-  try {
-    const htmlFilePath = path.join(process.cwd(), post.htmlFile);
-    if (fs.existsSync(htmlFilePath)) {
-      let rawContent = fs.readFileSync(htmlFilePath, 'utf-8');
-      rawContent = rawContent.replace(
-        /(["'])(\.?\/?)src\/routes\/PaperDiveIns\/papers\/assets\//g,
-        '$1/papers/assets/'
-      );
-      const { content: contentWithIds, toc: headings } = extractHeadingsAndAddIds(rawContent);
-      content = contentWithIds;
-      toc = headings;
-      readingTimeMinutes = estimateReadingTime(content);
-      isHtml = true;
-    }
-  } catch (error) {
-    console.error('Error loading blog post file:', error);
-  }
+const entry = Astro.props.entry;
+if (!entry) {
+  return Astro.redirect('/notes');
 }
+const { Content, headings } = await render(entry);
+const toc = headings.map((h) => ({ id: h.slug, text: h.text, level: h.depth }));
+const wordCount = (entry.body || '').trim().split(/\s+/).filter(Boolean).length;
+const readingTimeMinutes = Math.max(1, Math.ceil(wordCount / 200));
 
 const siteURL = 'https://shris-ai.github.io';
-const ogImage = post?.img?.src
-  ? (post.img.src.startsWith('http') ? post.img.src : `${siteURL}${post.img.src.startsWith('/') ? post.img.src : '/' + post.img.src}`)
-  : undefined;
+const ogImage = `${siteURL}${getCoverImageUrl('notes', entry.slug)}`;
 
-const articleSchema = post
-  ? {
-      '@context': 'https://schema.org',
-      '@type': 'Article',
-      headline: post.title,
-      description: post.description,
-      image: ogImage,
-      author: {
-        '@type': 'Person',
-        name: 'Shristi Gautam',
-        url: siteURL,
-        sameAs: ['https://www.linkedin.com/in/shristigautam/', 'https://github.com/shris-ai'],
-      },
-      publisher: { '@type': 'Person', name: 'Shristi Gautam', url: siteURL },
-      datePublished: parseDateToISO(post.publishedDate) || new Date().toISOString(),
-      dateModified: parseDateToISO(post.publishedDate) || new Date().toISOString(),
-      timeRequired: `PT${readingTimeMinutes}M`,
-      mainEntityOfPage: { '@type': 'WebPage', '@id': `${siteURL}/notes/${slug}` },
-      keywords: post.tags.join(', '),
-      articleSection: 'Blog',
-      inLanguage: 'en',
-    }
-  : null;
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: entry.data.title,
+  description: entry.data.description,
+  image: ogImage,
+  author: {
+    '@type': 'Person',
+    name: 'Shristi Gautam',
+    url: siteURL,
+    sameAs: ['https://www.linkedin.com/in/shristigautam/', 'https://github.com/shris-ai'],
+  },
+  publisher: { '@type': 'Person', name: 'Shristi Gautam', url: siteURL },
+  datePublished: parseDateToISO(entry.data.publishedDate) || new Date().toISOString(),
+  dateModified: parseDateToISO(entry.data.publishedDate) || new Date().toISOString(),
+  timeRequired: `PT${readingTimeMinutes}M`,
+  mainEntityOfPage: { '@type': 'WebPage', '@id': `${siteURL}/notes/${entry.slug}` },
+  keywords: (entry.data.tags || []).join(', '),
+  articleSection: 'Blog',
+  inLanguage: 'en',
+};
 
-const publishedTime = post ? (parseDateToISO(post.publishedDate) || new Date().toISOString()) : undefined;
+const publishedTime = parseDateToISO(entry.data.publishedDate) || new Date().toISOString();
 ---
 
 <Layout
-  title={`${post?.title ?? 'Blog Post'} - Shristi Gautam`}
-  description={post?.description}
+  title={`${entry.data.title} - Shristi Gautam`}
+  description={entry.data.description}
   type="article"
   publishedTime={publishedTime}
   author="Shristi Gautam"
-  tags={post?.tags ?? []}
+  tags={entry.data.tags ?? []}
   ogImage={ogImage}
-  ogImageAlt={post?.img?.alt ?? post?.title}
+  ogImageAlt={entry.data.title}
   stackEdit={true}
 >
-  {articleSchema && (
-    <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
-  )}
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
   <TopBar />
   <Breadcrumb
     items={[
       { label: 'Home', href: '/' },
       { label: 'Blog', href: '/notes' },
-      { label: post?.title ?? 'Post' },
+      { label: entry.data.title },
     ]}
   />
   <div class="page-container page-breakdown-container">
     <div class="page-breakdown-title-meta app-struct">
-      <h1 class="page-title page-title--no-top-margin">{post?.title ?? 'Blog Post'}</h1>
+      <h1 class="page-title page-title--no-top-margin">{entry.data.title}</h1>
       <div class="page-breakdown-meta-row">
         <span class="page-breakdown-reading-time" aria-label="Estimated reading time">
           {readingTimeMinutes} min read
         </span>
-        {post?.tags?.length ? (
+        {entry.data.tags?.length ? (
           <span class="page-breakdown-tags-inline">
-            {post.tags.map((tag) => {
+            {entry.data.tags.map((tag: string) => {
               const tagSlug = tag.toLowerCase().replace(/\s+/g, '-');
               const colorCSS = getTagColorCSS(tag);
               return (
@@ -123,11 +96,11 @@ const publishedTime = post ? (parseDateToISO(post.publishedDate) || new Date().t
           </span>
         ) : null}
       </div>
-      {post?.publishedDate ? (
+      {entry.data.publishedDate ? (
         <dl class="page-breakdown-meta-details">
           <div class="page-breakdown-meta-detail">
             <dt>Published</dt>
-            <dd>{post.publishedDate}</dd>
+            <dd>{entry.data.publishedDate}</dd>
           </div>
         </dl>
       ) : null}
@@ -177,13 +150,7 @@ const publishedTime = post ? (parseDateToISO(post.publishedDate) || new Date().t
             </svg>
           </button>
         ) : null}
-        {isHtml ? (
-          <Fragment set:html={content} />
-        ) : (
-          <p>
-            Content not found. <a href="/notes">Back to Blog</a>.
-          </p>
-        )}
+        <Content />
       </div>
     </div>
     <AuthorBio />
