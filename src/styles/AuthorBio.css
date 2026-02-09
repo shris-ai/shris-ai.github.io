@@ -1,11 +1,12 @@
 /* AuthorBio component – unique prefix: author-bio */
 
 .author-bio {
-  background: #f8fafc;
+  background: var(--bg-secondary, #f8fafc);
+  color: var(--text-primary, #1e293b);
   border-radius: 0.5rem;
   padding: 1.25rem;
   margin: 2rem 0;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
 }
 
 .author-bio__header {
@@ -19,6 +20,7 @@
   height: 80px;
   border-radius: 50%;
   object-fit: cover;
+  object-position: center 30%;
   flex-shrink: 0;
 }
 
@@ -30,7 +32,7 @@
 .author-bio__name {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary, #1e293b);
   margin: 0 0 0.25rem 0;
 }
 
@@ -40,9 +42,13 @@
   margin: 0 0 0.5rem 0;
 }
 
+[data-theme="dark"] .author-bio__title {
+  color: #a5b4fc;
+}
+
 .author-bio__desc {
   font-size: 0.875rem;
-  color: #475569;
+  color: var(--text-secondary, #475569);
   line-height: 1.5;
   margin: 0 0 0.75rem 0;
 }
@@ -62,6 +68,10 @@
 
 .author-bio__links a:hover {
   text-decoration: underline;
+}
+
+[data-theme="dark"] .author-bio__links a {
+  color: #a5b4fc;
 }
 
 .author-bio[data-compact="true"] .author-bio__image {
