@@ -1,0 +1,2611 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="description" content="Concepts and techniques for reasoning in large language models—reasoning in LLMs vs reasoning LLMs, scaling, and search strategies."><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="Astro v4.16.19"><!-- Open Graph / Facebook --><meta property="og:type" content="article"><meta property="og:url" content="https://shris-ai.github.io/notes/reasoning-models-2025/"><meta property="og:title" content="Reasoning in LLMs - The Role of Test-Time Compute - Shristi Gautam"><meta property="og:description" content="Concepts and techniques for reasoning in large language models—reasoning in LLMs vs reasoning LLMs, scaling, and search strategies."><meta property="og:image" content="https://shris-ai.github.io/notes/reasoning-models-2025/cover_image.png"><meta property="og:image:alt" content="Reasoning in LLMs - The Role of Test-Time Compute"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:site_name" content="Shristi Gautam"><!-- Twitter --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:url" content="https://shris-ai.github.io/notes/reasoning-models-2025/"><meta name="twitter:title" content="Reasoning in LLMs - The Role of Test-Time Compute - Shristi Gautam"><meta name="twitter:description" content="Concepts and techniques for reasoning in large language models—reasoning in LLMs vs reasoning LLMs, scaling, and search strategies."><meta name="twitter:image" content="https://shris-ai.github.io/notes/reasoning-models-2025/cover_image.png"><meta name="twitter:image:alt" content="Reasoning in LLMs - The Role of Test-Time Compute"><!-- Article specific meta tags --><meta property="article:published_time" content="2025-02-02T00:00:00.000Z"><meta property="article:author" content="Shristi Gautam"><meta key="AI" property="article:tag" content="AI"><meta key="Reasoning Models" property="article:tag" content="Reasoning Models"><meta key="Test-time Compute" property="article:tag" content="Test-time Compute"><!-- Author --><meta name="author" content="Shristi Gautam"><link rel="canonical" href="https://shris-ai.github.io/notes/reasoning-models-2025/"><link rel="icon" type="image/png" href="/assets/logo.png"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css"><!-- All styles inlined so site renders correctly even if _astro/*.css fails to load (e.g. GitHub Pages) --><style>/* Global: layout, base elements, shared content box */
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Light mode colors */
+  --bg-primary: #F6F6DF;
+  --bg-secondary: #ffffff;
+  --text-primary: #1f2937;
+  --text-secondary: #4b5563;
+  --border-color: rgba(0, 0, 0, 0.1);
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --link-color: slateblue;
+  --link-hover: #4a3f91;
+}
+
+[data-theme="dark"] {
+  /* Dark mode colors */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --text-primary: #e5e5e5;
+  --text-secondary: #a3a3a3;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --link-color: #818cf8;
+  --link-hover: #a5b4fc;
+}
+
+a {
+  font-weight: 500;
+  color: var(--link-color);
+  text-decoration: inherit;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--link-hover);
+}
+
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: monospace;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Shared content box used across pages */
+.app-struct {
+  justify-self: center;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  margin: 20px;
+  padding: 15px;
+  width: 100%;
+  max-width: 95%;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  overflow-wrap: break-word;
+  white-space: normal;
+  display: block;
+  line-height: 1.6;
+  font-size: 1rem;
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+@font-face {
+  font-family: 'AnaktoriaRegular';
+  src: url('/fonts/Anaktoria/Anaktoria.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Shared: page container, page title, tags, paper card layout */
+
+/* Main page wrapper with grid background */
+.page-container {
+  width: 95vw;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+  margin-top: 25px;
+  background-size: 30px 30px;
+  background-color: var(--bg-primary, #F6F6DF);
+  background-image:
+    linear-gradient(to right, rgba(173, 216, 230, 0.3) 0.5px, transparent 0.7px),
+    linear-gradient(to bottom, rgba(173, 216, 230, 0.3) 0.5px, transparent 0.7px);
+  transition: background-color 0.3s ease;
+}
+
+[data-theme="dark"] .page-container {
+  background-image:
+    linear-gradient(to right, rgba(100, 116, 139, 0.2) 0.5px, transparent 0.7px),
+    linear-gradient(to bottom, rgba(100, 116, 139, 0.2) 0.5px, transparent 0.7px);
+}
+
+.page-container.page-container--top-spacing {
+  margin-top: 70px;
+}
+
+/* Main page/heading title (slateblue, bold) */
+.page-title {
+  font-size: 1.7rem;
+  font-weight: bold;
+  color: slateblue;
+  margin-bottom: 1rem;
+  margin-left: 10px;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  margin-top: 70px;
+  transition: color 0.3s ease;
+}
+
+[data-theme="dark"] .page-title {
+  color: #a5b4fc;
+}
+
+.page-title.page-title--no-top-margin {
+  margin-top: 0;
+}
+
+/* Tag pill (nav / filter links) */
+.shared-tag-pill {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  background: var(--tag-bg, #ebf8ff);
+  color: var(--tag-text, #1e40af);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.shared-tag-pill:hover {
+  background: var(--tag-hover, #bee3f8);
+  text-decoration: none;
+}
+
+/* Tag chip (inline on cards) */
+.shared-tag-chip {
+  display: inline-block;
+  background-color: var(--tag-bg, #ebf8ff);
+  color: var(--tag-text, #1e40af);
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-right: 0.5rem;
+  padding: 0.125rem 0.625rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+/* Tag as link (e.g. paper meta row) */
+.shared-tag-link {
+  color: var(--tag-text, slateblue);
+  text-decoration: none;
+  padding: 0.2rem 0.5rem;
+  background: var(--tag-bg, #ebf8ff);
+  border-radius: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.shared-tag-link:hover {
+  background: var(--tag-hover, #bee3f8);
+  text-decoration: underline;
+}
+
+/* Paper list grid */
+.paper-list-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin-top: 30px;
+  gap: 1rem;
+}
+
+/* Paper card row (image + text) */
+.paper-card-layout {
+  display: grid;
+  grid-template-columns: 30% 70%;
+  padding: 10px;
+  align-items: center;
+}
+
+.paper-card-layout--bordered {
+  background: var(--bg-secondary, #ffffff);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow, 0 4px 6px rgba(0, 0, 0, 0.1));
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme="dark"] .paper-card-layout--bordered {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.paper-card-image-wrap {
+  width: 90%;
+  margin-bottom: 1rem;
+}
+
+.paper-card-image {
+  width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.paper-card-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #51153E;
+  margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+[data-theme="dark"] .paper-card-title {
+  color: #c4b5fd;
+}
+
+.paper-card-title--small {
+  font-size: 1.25rem;
+}
+
+.paper-card-meta {
+  margin-bottom: 0.5rem;
+}
+
+.paper-card-description {
+  color: var(--text-secondary, #374151);
+  transition: color 0.3s ease;
+}
+
+[data-theme="dark"] .paper-card-description {
+  color: var(--text-secondary);
+}
+
+.paper-card-description--small {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Card link (no underline, inherit color) */
+.paper-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+@media screen and (max-width: 768px) {
+  .page-container {
+    padding: 0.5rem;
+  }
+
+  .paper-card-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .page-container {
+    margin-top: 4rem;
+  }
+}
+
+/* TopBar component – unique prefix: topbar- */
+
+.topbar {
+  background-color: var(--bg-primary, #F6F6DF);
+  box-shadow: 0 2px 4px var(--border-color, rgba(0, 0, 0, 0.1));
+  position: fixed;
+  width: 100vw;
+  z-index: 10;
+  top: 0;
+  color: slateblue;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme="dark"] .topbar {
+  color: #a5b4fc;
+}
+
+.topbar__container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  border-bottom-style: outset;
+  box-sizing: border-box;
+}
+
+.topbar__content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 4rem;
+  padding: 0 max(1rem, 5%);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.topbar__title-wrap {
+  margin-left: 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.topbar__icon {
+  vertical-align: middle;
+  margin-right: 5px;
+  width: clamp(1.5rem, 2vw, 2rem);
+  height: auto;
+  flex-shrink: 0;
+}
+
+.topbar__title {
+  font-family: 'AnaktoriaRegular', sans-serif;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  font-weight: bold;
+  white-space: nowrap;
+  flex-shrink: 0;
+  color: slateblue;
+}
+
+.topbar__title--hindi {
+  font-family: 'AnaktoriaRegular', sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  margin-left: 0;
+  font-size: clamp(0.9rem, 2.3vw, 1.15rem);
+  flex-shrink: 0;
+}
+
+.topbar__links {
+  display: flex;
+  gap: clamp(0.5rem, 2vw, 2rem);
+  align-items: center;
+  flex-shrink: 1;
+}
+
+.topbar__link {
+  color: slateblue;
+  text-decoration: none;
+  font-size: clamp(0.875rem, 2vw, 1rem);
+  white-space: nowrap;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.topbar__link:hover {
+  color: #1f2937;
+}
+
+[data-theme="dark"] .topbar__link:hover {
+  color: #c4b5fd;
+}
+
+/* Show icon name on hover via title + custom tooltip */
+.topbar__link[title]::after {
+  content: attr(title);
+  position: absolute;
+  bottom: -1.75rem;
+  left: 50%;
+  transform: translateX(-50%) scale(0.95);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  background: var(--bg-secondary, #fff);
+  color: var(--text-primary, #1f2937);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
+  border-radius: 0.25rem;
+  box-shadow: var(--shadow, 0 2px 8px rgba(0, 0, 0, 0.1));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 20;
+}
+
+.topbar__link:hover[title]::after {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+.topbar__theme-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.topbar__theme-toggle[title]::after {
+  content: attr(title);
+  position: absolute;
+  bottom: -1.75rem;
+  left: 50%;
+  transform: translateX(-50%) scale(0.95);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  background: var(--bg-secondary, #fff);
+  color: var(--text-primary, #1f2937);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
+  border-radius: 0.25rem;
+  box-shadow: var(--shadow, 0 2px 8px rgba(0, 0, 0, 0.1));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 20;
+}
+
+.topbar__theme-toggle:hover[title]::after {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+.topbar__theme-toggle:hover {
+  opacity: 0.8;
+}
+
+.topbar__theme-toggle[data-theme="dark"] .topbar__icon--moon {
+  display: none;
+}
+
+.topbar__theme-toggle[data-theme="dark"] .topbar__icon--sun {
+  display: block !important;
+}
+
+.topbar__theme-toggle:not([data-theme="dark"]) .topbar__icon--sun {
+  display: none !important;
+}
+
+.topbar__theme-toggle:not([data-theme="dark"]) .topbar__icon--moon {
+  display: block;
+}
+
+@media screen and (max-width: 768px) {
+  .topbar__content {
+    padding: 0 0.75rem;
+  }
+
+  .topbar__links {
+    gap: 0.75rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .topbar {
+    width: 100vw;
+  }
+
+  .topbar__content {
+    height: 3.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .topbar__links {
+    gap: 0.5rem;
+  }
+
+  .topbar__title {
+    font-size: 0.9rem;
+  }
+
+  .topbar__title--hindi {
+    font-size: 0.85rem;
+  }
+}
+
+/* Breadcrumb component – unique prefix: breadcrumb- */
+
+.breadcrumb {
+  background: var(--bg-secondary, #ffffff);
+  margin: 0;
+  padding: 0;
+  padding-top: 4rem; /* clear fixed navbar */
+  width: 100%;
+  box-shadow: 0 1px 0 var(--border-color, rgba(0, 0, 0, 0.05));
+  position: absolute;
+  top: 10px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.breadcrumb__inner {
+  font-size: 0.9rem;
+  color: var(--text-secondary, #4b5563);
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+  max-width: 95vw;
+  box-sizing: border-box;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb__inner a {
+  color: slateblue;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb__inner a:hover {
+  text-decoration: underline;
+}
+
+[data-theme="dark"] .breadcrumb__inner a {
+  color: #a5b4fc;
+}
+
+.breadcrumb__separator {
+  margin: 0 0.5rem;
+  color: #9ca3af;
+}
+
+.breadcrumb__current {
+  color: slateblue;
+  font-weight: 500;
+  max-width: 60ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: bottom;
+}
+
+[data-theme="dark"] .breadcrumb__current {
+  color: #a5b4fc;
+}
+
+/* AuthorBio component – unique prefix: author-bio */
+
+.author-bio {
+  background: var(--bg-secondary, #f8fafc);
+  color: var(--text-primary, #1e293b);
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  margin: 2rem 0;
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
+}
+
+.author-bio__header {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.author-bio__image {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center 30%;
+  flex-shrink: 0;
+}
+
+.author-bio__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.author-bio__name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary, #1e293b);
+  margin: 0 0 0.25rem 0;
+}
+
+.author-bio__title {
+  font-size: 0.875rem;
+  color: slateblue;
+  margin: 0 0 0.5rem 0;
+}
+
+[data-theme="dark"] .author-bio__title {
+  color: #a5b4fc;
+}
+
+.author-bio__desc {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #475569);
+  line-height: 1.5;
+  margin: 0 0 0.75rem 0;
+}
+
+.author-bio__links {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.author-bio__links a {
+  font-size: 0.875rem;
+  color: slateblue;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.author-bio__links a:hover {
+  text-decoration: underline;
+}
+
+[data-theme="dark"] .author-bio__links a {
+  color: #a5b4fc;
+}
+
+.author-bio[data-compact="true"] .author-bio__image {
+  width: 56px;
+  height: 56px;
+}
+
+.author-bio[data-compact="true"] .author-bio__desc {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .author-bio__header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .author-bio__links {
+    justify-content: center;
+  }
+}
+
+/* Home page – unique prefix: page-home- */
+
+.page-home-container {
+  overflow-y: auto;
+  width: 95vw;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+  margin-top: 25px;
+  background-size: 30px 30px;
+  background-color: var(--bg-primary, #F6F6DF);
+  background-image: linear-gradient(to right, rgba(173, 216, 230, 0.3) 0.5px, transparent 0.7px),
+    linear-gradient(to bottom, rgba(173, 216, 230, 0.3) 0.5px, transparent 0.7px);
+  transition: background-color 0.3s ease;
+}
+
+[data-theme="dark"] .page-home-container {
+  background-image:
+    linear-gradient(to right, rgba(100, 116, 139, 0.2) 0.5px, transparent 0.7px),
+    linear-gradient(to bottom, rgba(100, 116, 139, 0.2) 0.5px, transparent 0.7px);
+}
+
+.page-home-bio {
+  justify-self: center;
+  background-color: var(--bg-secondary, #ffffff);
+  color: var(--text-primary, #1f2937);
+  border-radius: 10px;
+  box-shadow: var(--shadow, 0 4px 6px rgba(0, 0, 0, 0.1));
+  margin: 70px 20px 20px 20px;
+  padding: 15px;
+  padding-left: 25px;
+  width: 100%;
+  max-width: 95%;
+  box-sizing: border-box;
+  line-height: 1.6;
+  font-size: 1rem;
+  display: grid;
+  grid-auto-flow: column;
+  align-content: space-between;
+  gap: 25px;
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Circular image with math-inspired rings (golden ratio φ ≈ 1.618; sine-wave pulse) */
+.page-home-bio__img {
+  position: relative;
+  flex-shrink: 0;
+  width: 200px;
+  height: 200px;
+  margin: 1.2em;
+}
+
+.page-home-bio__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  border-radius: 50%;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+/* Inner ring: golden ratio–inspired (thickness ∝ 1/φ), sine-wave opacity pulse */
+.page-home-bio__img-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page-home-bio__img-ring--golden {
+  border: 3px solid slateblue;
+  opacity: 0.85;
+  animation: page-home-sine-pulse 3s ease-in-out infinite;
+}
+
+[data-theme="dark"] .page-home-bio__img-ring--golden {
+  border-color: #a5b4fc;
+}
+
+/* Outer ring: radius scaled by φ (inner 6px × φ ≈ 10px), phase-shifted sine */
+.page-home-bio__img-ring--outer {
+  inset: -10px; /* 10/6 ≈ φ */
+  border: 2px solid rgba(106, 90, 205, 0.4);
+  opacity: 0.6;
+  animation: page-home-sine-pulse 3s ease-in-out infinite 0.75s;
+}
+
+[data-theme="dark"] .page-home-bio__img-ring--outer {
+  border-color: rgba(165, 180, 252, 0.35);
+}
+
+/* Sine-wave–style oscillation: smooth rise and fall like sin(t) */
+@keyframes page-home-sine-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.02); }
+}
+
+.page-home-social-links {
+  display: flex;
+  justify-content: right;
+  gap: 10px;
+}
+
+/* Blog page – unique prefix: page-blog- */
+
+.page-blog-container {
+  overflow-y: auto;
+  margin-top: 25px;
+}
+
+.page-blog-header {
+  margin-top: 70px;
+  padding: 1.5rem 2rem;
+  justify-items: center;
+}
+
+.page-blog-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.7rem;
+  font-weight: bold;
+  color: slateblue;
+  transition: color 0.3s ease;
+}
+
+[data-theme="dark"] .page-blog-title {
+  color: #a5b4fc;
+}
+
+.page-blog-intro {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--text-secondary, #4b5563);
+  text-align: center;
+}
+
+[data-theme="dark"] .page-blog-intro {
+  color: var(--text-secondary);
+}
+
+.page-blog-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  padding: 0 2rem 2rem;
+}
+
+.page-blog-card {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.page-blog-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="dark"] .page-blog-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.page-blog-card-image-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--bg-primary, #f3f4f6);
+}
+
+.page-blog-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.page-blog-card-body {
+  padding: 1rem 1.25rem;
+}
+
+.page-blog-card-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-primary, #1f2937);
+  transition: color 0.2s;
+}
+
+.page-blog-card:hover .page-blog-card-title {
+  color: slateblue;
+}
+
+[data-theme="dark"] .page-blog-card-title {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .page-blog-card:hover .page-blog-card-title {
+  color: #a5b4fc;
+}
+
+.page-blog-card-description {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-secondary, #6b7280);
+}
+
+[data-theme="dark"] .page-blog-card-description {
+  color: var(--text-secondary);
+}
+
+.page-blog-card-date {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #6b7280);
+  margin-bottom: 0.5rem;
+}
+
+.page-blog-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.page-blog-card-tag {
+  font-size: 0.75rem;
+}
+
+.page-blog-card-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: slateblue;
+}
+
+[data-theme="dark"] .page-blog-card-link {
+  color: #a5b4fc;
+}
+
+@media screen and (max-width: 768px) {
+  .page-blog-container.page-container {
+    padding: 0.5rem;
+  }
+
+  .page-blog-header {
+    padding: 1rem 1.25rem;
+  }
+
+  .page-blog-list {
+    padding: 0 1rem 1.5rem;
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Labs page – unique prefix: page-labs- */
+
+.page-labs-container {
+  overflow-y: auto;
+  margin-top: 25px;
+}
+
+.page-labs-header {
+  margin-top: 70px;
+  padding: 1.5rem 2rem;
+  justify-items: center;
+}
+
+.page-labs-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.7rem;
+  font-weight: bold;
+  color: slateblue;
+  transition: color 0.3s ease;
+}
+
+[data-theme="dark"] .page-labs-title {
+  color: #a5b4fc;
+}
+
+.page-labs-intro {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--text-secondary, #4b5563);
+  text-align: center;
+}
+
+[data-theme="dark"] .page-labs-intro {
+  color: var(--text-secondary);
+}
+
+.page-labs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  padding: 0 2rem 2rem;
+}
+
+.page-labs-card {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.page-labs-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="dark"] .page-labs-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.page-labs-card-image-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--bg-primary, #f3f4f6);
+}
+
+.page-labs-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.page-labs-card-body {
+  padding: 1rem 1.25rem;
+}
+
+.page-labs-card-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-primary, #1f2937);
+  transition: color 0.2s;
+}
+
+.page-labs-card:hover .page-labs-card-title {
+  color: slateblue;
+}
+
+[data-theme="dark"] .page-labs-card-title {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .page-labs-card:hover .page-labs-card-title {
+  color: #a5b4fc;
+}
+
+.page-labs-card-description {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-secondary, #6b7280);
+}
+
+[data-theme="dark"] .page-labs-card-description {
+  color: var(--text-secondary);
+}
+
+.page-labs-card-dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  margin: 0 0 0.75rem 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.page-labs-card-date-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.page-labs-card-date-item dt {
+  margin: 0;
+  font-weight: 500;
+  color: var(--text-secondary, #4b5563);
+}
+
+.page-labs-card-date-item dd {
+  margin: 0;
+}
+
+[data-theme="dark"] .page-labs-card-dates,
+[data-theme="dark"] .page-labs-card-date-item dt {
+  color: var(--text-secondary);
+}
+
+.page-labs-card-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: slateblue;
+}
+
+[data-theme="dark"] .page-labs-card-link {
+  color: #a5b4fc;
+}
+
+@media screen and (max-width: 768px) {
+  .page-labs-container.page-container {
+    padding: 0.5rem;
+  }
+
+  .page-labs-header {
+    padding: 1rem 1.25rem;
+  }
+
+  .page-labs-grid {
+    padding: 0 1rem 1.5rem;
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Newsletter page – unique prefix: page-newsletter- */
+
+.page-newsletter-container {
+  overflow-y: auto;
+  margin-top: 25px;
+}
+
+.page-newsletter-header {
+  margin-top: 70px;
+  padding: 1.5rem 2rem;
+}
+
+.page-newsletter-header-layout {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1.5rem 2rem;
+}
+
+.page-newsletter-header-left {
+  flex-shrink: 0;
+}
+
+.page-newsletter-header-image-link {
+  display: block;
+  line-height: 0;
+}
+
+.page-newsletter-header-image {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow, 0 2px 8px rgba(0, 0, 0, 0.1));
+  transition: box-shadow 0.2s;
+}
+
+.page-newsletter-header-image-link:hover .page-newsletter-header-image {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="dark"] .page-newsletter-header-image {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.page-newsletter-header-right {
+  flex: 1;
+  min-width: 0;
+}
+
+.page-newsletter-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.7rem;
+  font-weight: bold;
+  color: slateblue;
+  transition: color 0.3s ease;
+  padding-left: 0;
+}
+
+[data-theme="dark"] .page-newsletter-title {
+  color: #a5b4fc;
+}
+
+.page-newsletter-intro {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--text-secondary, #4b5563);
+}
+
+[data-theme="dark"] .page-newsletter-intro {
+  color: var(--text-secondary);
+}
+
+.page-newsletter-cta {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  background: slateblue;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.page-newsletter-cta:hover {
+  background: #4a3f91;
+  transform: translateY(-1px);
+}
+
+[data-theme="dark"] .page-newsletter-cta {
+  background: #6366f1;
+  color: #fff;
+}
+
+[data-theme="dark"] .page-newsletter-cta:hover {
+  background: #818cf8;
+}
+
+.page-newsletter-posts {
+  margin-top: 1.5rem;
+  padding: 1.5rem 2rem;
+}
+
+.page-newsletter-posts-title {
+  margin: 0 0 1rem 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-primary, #1f2937);
+}
+
+[data-theme="dark"] .page-newsletter-posts-title {
+  color: var(--text-primary);
+}
+
+.page-newsletter-posts-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.page-newsletter-post-item {
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+}
+
+.page-newsletter-post-item:last-child {
+  border-bottom: none;
+}
+
+.page-newsletter-post-link {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 1rem;
+  padding: 1rem 0;
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.2s;
+}
+
+.page-newsletter-post-link:hover .page-newsletter-post-title {
+  color: slateblue;
+  text-decoration: underline;
+}
+
+[data-theme="dark"] .page-newsletter-post-link:hover .page-newsletter-post-title {
+  color: #a5b4fc;
+}
+
+.page-newsletter-post-image-wrap {
+  flex-shrink: 0;
+  width: 140px;
+  min-height: 88px;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: var(--bg-primary, #f3f4f6);
+}
+
+[data-theme="dark"] .page-newsletter-post-image-wrap {
+  background: var(--bg-primary);
+}
+
+.page-newsletter-post-image {
+  width: 100%;
+  height: 100%;
+  min-height: 88px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.2s;
+}
+
+.page-newsletter-post-link:hover .page-newsletter-post-image {
+  transform: scale(1.03);
+}
+
+.page-newsletter-post-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  justify-content: center;
+}
+
+.page-newsletter-post-title {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--text-primary, #1f2937);
+  line-height: 1.3;
+}
+
+[data-theme="dark"] .page-newsletter-post-title {
+  color: var(--text-primary);
+}
+
+.page-newsletter-post-subtitle {
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--text-secondary, #6b7280);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .page-newsletter-post-subtitle {
+  color: var(--text-secondary);
+}
+
+.page-newsletter-post-date {
+  font-size: 0.8rem;
+  color: var(--text-secondary, #9ca3af);
+  margin-top: 0.15rem;
+}
+
+[data-theme="dark"] .page-newsletter-post-date {
+  color: var(--text-secondary);
+}
+
+.page-newsletter-posts-fallback {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.page-newsletter-posts-fallback a {
+  color: slateblue;
+  text-decoration: none;
+}
+
+.page-newsletter-posts-fallback a:hover {
+  text-decoration: underline;
+}
+
+[data-theme="dark"] .page-newsletter-posts-fallback a {
+  color: #a5b4fc;
+}
+
+@media screen and (max-width: 768px) {
+  .page-newsletter-container.page-container {
+    padding: 0.5rem;
+  }
+
+  .page-newsletter-header,
+  .page-newsletter-posts {
+    padding: 1rem 1.25rem;
+  }
+
+  .page-newsletter-header-layout {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .page-newsletter-post-link {
+    flex-direction: column;
+  }
+
+  .page-newsletter-post-image-wrap {
+    width: 100%;
+    min-height: 180px;
+  }
+
+  .page-newsletter-post-image {
+    min-height: 180px;
+  }
+}
+
+/* Paper Dive-Ins page – uses shared + page-dive-ins- for page-specific */
+
+.page-dive-ins-container {
+  overflow-y: auto;
+}
+
+.page-dive-ins-heading-block {
+  margin-top: 70px;
+}
+
+.page-dive-ins-heading-title {
+  font-size: 1.7rem;
+  font-weight: bold;
+  color: slateblue;
+  margin: 0 0 0.75rem 0;
+  padding-left: 0;
+  padding-right: 0;
+  line-height: 1.3;
+  justify-self: center;
+}
+
+[data-theme="dark"] .page-dive-ins-heading-title {
+  color: #a5b4fc;
+}
+
+.page-dive-ins-intro {
+  margin: 20px;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--text-secondary, #4b5563);
+  justify-self: center;
+}
+
+[data-theme="dark"] .page-dive-ins-intro {
+  color: var(--text-secondary, #a3a3a3);
+}
+
+.page-dive-ins-filter-wrap {
+  position: relative;
+  margin-bottom: 1.5rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+.page-dive-ins-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+}
+
+.page-dive-ins-tags-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.page-dive-ins-filter-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: var(--bg-secondary, #ffffff);
+  color: slateblue;
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.15));
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.page-dive-ins-filter-trigger:hover {
+  background: var(--bg-secondary, #f8fafc);
+  border-color: slateblue;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.page-dive-ins-filter-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-dive-ins-filter-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 2rem;
+  right: 2rem;
+  max-width: 420px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--bg-secondary, #ffffff);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  z-index: 20;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: opacity 0.2s, visibility 0.2s, transform 0.2s;
+}
+
+.page-dive-ins-filter-panel--open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.page-dive-ins-filter-panel-inner {
+  padding: 1.25rem;
+}
+
+.page-dive-ins-filter-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+}
+
+.page-dive-ins-filter-panel-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary, #1f2937);
+}
+
+.page-dive-ins-filter-panel-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--text-secondary, #6b7280);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.page-dive-ins-filter-panel-close:hover {
+  background: var(--bg-primary, #f3f4f6);
+  color: var(--text-primary, #374151);
+}
+
+.page-dive-ins-filter-section {
+  margin-bottom: 1.25rem;
+}
+
+.page-dive-ins-filter-section:last-of-type {
+  margin-bottom: 0;
+}
+
+.page-dive-ins-filter-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary, #4b5563);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.page-dive-ins-remove-tags-btn {
+  margin-top: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-family: inherit;
+  color: slateblue;
+  background: transparent;
+  border: 1px solid slateblue;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.page-dive-ins-remove-tags-btn:hover {
+  background: rgba(106, 90, 205, 0.1);
+  color: #4a3f91;
+}
+
+[data-theme="dark"] .page-dive-ins-remove-tags-btn {
+  color: #a5b4fc;
+  border-color: #a5b4fc;
+}
+
+[data-theme="dark"] .page-dive-ins-remove-tags-btn:hover {
+  background: rgba(165, 180, 252, 0.15);
+}
+
+.page-dive-ins-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.page-dive-ins-date-range {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.page-dive-ins-date-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #4b5563);
+}
+
+.page-dive-ins-date-input {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  border: 1px solid var(--border-color, #d1d5db);
+  border-radius: 0.375rem;
+  background: var(--bg-primary, #fff);
+  color: var(--text-primary, #1f2937);
+  min-width: 140px;
+}
+
+.page-dive-ins-date-input:focus {
+  outline: none;
+  border-color: slateblue;
+  box-shadow: 0 0 0 2px rgba(106, 90, 205, 0.2);
+}
+
+.page-dive-ins-filter-panel-actions {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+}
+
+.page-dive-ins-filter-clear-btn {
+  background: none;
+  border: 1px solid var(--border-color, #d1d5db);
+  color: var(--text-secondary, #6b7280);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.page-dive-ins-filter-clear-btn:hover {
+  background: var(--bg-primary, #f3f4f6);
+  color: var(--text-primary, #374151);
+  border-color: #9ca3af;
+}
+
+.page-dive-ins-filter-tag {
+  border: none;
+  background: var(--tag-bg, #ebf8ff);
+  color: var(--tag-text, #1e40af);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.page-dive-ins-filter-tag:hover {
+  background: var(--tag-hover, #bee3f8);
+}
+
+.page-dive-ins-filter-tag--active {
+  background: var(--tag-text, #1e40af) !important;
+  color: #ffffff !important;
+  opacity: 0.9;
+}
+
+.page-dive-ins-filter-tag--active:hover {
+  background: var(--tag-text, #1e40af) !important;
+  opacity: 1;
+}
+
+.page-dive-ins-paper-item {
+  transition: opacity 0.2s;
+}
+
+/* Single-column paper card (no image) – pop-up on hover */
+.page-dive-ins-paper-item.page-dive-ins-card {
+  margin: 2px;
+  position: relative;
+  z-index: 0;
+  padding: 1.25rem 1.5rem;
+  transform: translateY(0) scale(1);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.2s ease;
+}
+
+.page-dive-ins-paper-item.page-dive-ins-card:hover {
+  z-index: 1;
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="dark"] .page-dive-ins-paper-item.page-dive-ins-card:hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.25);
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.page-dive-ins-card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #51153E;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.3;
+  transition: color 0.2s;
+}
+
+[data-theme="dark"] .page-dive-ins-card-title {
+  color: #c4b5fd;
+}
+
+.page-dive-ins-card-link:hover .page-dive-ins-card-title {
+  text-decoration: underline;
+}
+
+.page-dive-ins-card-meta {
+  margin-bottom: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.page-dive-ins-card-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  margin: 0 0 0.75rem 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.page-dive-ins-card-detail {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.page-dive-ins-card-detail dt {
+  margin: 0;
+  font-weight: 500;
+  color: var(--text-secondary, #4b5563);
+}
+
+.page-dive-ins-card-detail dd {
+  margin: 0;
+}
+
+.page-dive-ins-source-link {
+  color: slateblue;
+  text-decoration: none;
+}
+
+.page-dive-ins-source-link:hover {
+  text-decoration: underline;
+}
+
+[data-theme="dark"] .page-dive-ins-source-link {
+  color: #a5b4fc;
+}
+
+.page-dive-ins-status {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  background: rgba(34, 197, 94, 0.15);
+  color: #15803d;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+[data-theme="dark"] .page-dive-ins-status {
+  background: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+}
+
+.page-dive-ins-no-results {
+  padding: 2rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.page-dive-ins-clear-link {
+  background: none;
+  border: none;
+  color: slateblue;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+  padding: 0;
+  margin-left: 0.25rem;
+}
+
+.page-dive-ins-clear-link:hover {
+  color: #4a5568;
+}
+
+.page-dive-ins-list-grid {
+  margin-top: 30px;
+}
+
+.page-dive-ins-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.page-dive-ins-card-image-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 8px 8px 0 0;
+  background: var(--bg-secondary, #f1f5f9);
+}
+
+[data-theme="dark"] .page-dive-ins-card-image-wrap {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.page-dive-ins-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@media screen and (max-width: 768px) {
+  .page-dive-ins-container.page-container {
+    padding: 0.5rem;
+  }
+
+  .paper-list-grid.page-dive-ins-list-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .page-dive-ins-container.page-container {
+    margin-top: 4rem;
+  }
+}
+
+/* Paper Breakdown page – unique prefix: page-breakdown- */
+
+.page-breakdown-container {
+  margin-top: 70px;
+}
+
+.page-breakdown-title-meta {
+  margin-bottom: 1.5rem;
+  justify-items: center;
+}
+
+.page-breakdown-title-meta .page-title {
+  font-size: 1.7rem;
+  font-weight: bold;
+  color: slateblue;
+  margin-bottom: 0.75rem;
+  margin-left: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.page-breakdown-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0;
+  padding-left: 0;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.page-breakdown-reading-time {
+  font-weight: 500;
+}
+
+.page-breakdown-tags-inline {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.page-breakdown-meta-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  margin: 0.75rem 0 0 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.page-breakdown-meta-detail {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.page-breakdown-meta-detail dt {
+  margin: 0;
+  font-weight: 500;
+  color: var(--text-secondary, #4b5563);
+}
+
+.page-breakdown-meta-detail dd {
+  margin: 0;
+}
+
+.page-breakdown-source-link {
+  color: slateblue;
+  text-decoration: none;
+}
+
+.page-breakdown-source-link:hover {
+  text-decoration: underline;
+}
+
+[data-theme="dark"] .page-breakdown-source-link {
+  color: #a5b4fc;
+}
+
+.page-breakdown-status {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  background: rgba(34, 197, 94, 0.15);
+  color: #15803d;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+[data-theme="dark"] .page-breakdown-status {
+  background: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+}
+
+[data-theme="dark"] .page-breakdown-title-meta .page-title {
+  color: #a5b4fc;
+}
+
+[data-theme="dark"] .page-breakdown-meta-row {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .page-breakdown-markdown blockquote {
+  background: var(--bg-primary);
+  border-left: 4px solid #a5b4fc;
+  color: var(--text-primary);
+}
+
+.page-breakdown-content-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+}
+
+.page-breakdown-content-wrapper .page-breakdown-markdown {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.page-breakdown-markdown {
+  padding: 2rem;
+  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+}
+
+/* Hide all h1 in paper content; page title is already shown above */
+.page-breakdown-markdown :global(h1),
+.page-breakdown-content-wrapper .page-breakdown-markdown :global(h1) {
+  display: none !important;
+}
+
+.page-breakdown-markdown blockquote {
+  background: whitesmoke;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.page-breakdown-markdown :global(img) {
+  max-width: 100%;
+  height: auto;
+}
+
+/* TOC */
+.page-breakdown-toc-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+}
+
+.page-breakdown-toc-toggle:hover {
+  background: #f8fafc;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.page-breakdown-toc-toggle svg {
+  color: slateblue;
+}
+
+.page-breakdown-toc-toggle[aria-expanded="true"] {
+  background: slateblue;
+}
+
+.page-breakdown-toc-toggle[aria-expanded="true"] svg {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .page-breakdown-toc-toggle {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow);
+}
+
+[data-theme="dark"] .page-breakdown-toc-toggle:hover {
+  background: var(--bg-primary);
+}
+
+[data-theme="dark"] .page-breakdown-toc-toggle svg {
+  color: #a5b4fc;
+}
+
+[data-theme="dark"] .page-breakdown-toc-toggle[aria-expanded="true"] {
+  background: #6366f1;
+}
+
+[data-theme="dark"] .page-breakdown-toc-toggle[aria-expanded="true"] svg {
+  color: #ffffff;
+}
+
+.page-breakdown-toc-mobile {
+  background: #f8fafc;
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #e2e8f0;
+  display: block;
+}
+
+.page-breakdown-toc-sidebar {
+  width: 0;
+  max-width: 0;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+  padding: 0;
+  transition: max-width 0.3s ease, padding 0.3s ease;
+  display: none;
+}
+
+.page-breakdown-toc-sidebar.page-breakdown-toc-sidebar--active {
+  width: 260px;
+  max-width: 260px;
+  padding: 1rem 1.25rem;
+  display: block;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  max-height: 100vh;
+  overflow-y: auto;
+  z-index: 5;
+}
+
+.page-breakdown-toc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.page-breakdown-toc-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+  transition: background 0.2s;
+}
+
+.page-breakdown-toc-close:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.page-breakdown-toc-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+
+.page-breakdown-toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.page-breakdown-toc-item {
+  margin: 0.25rem 0;
+}
+
+.page-breakdown-toc-item a {
+  color: slateblue;
+  text-decoration: none;
+  font-size: 0.9rem;
+  display: block;
+  padding: 0.25rem 0;
+  transition: color 0.2s;
+}
+
+.page-breakdown-toc-item a:hover {
+  text-decoration: underline;
+  color: #4a5568;
+}
+
+.page-breakdown-toc-level-2 {
+  padding-left: 1rem;
+}
+
+.page-breakdown-toc-level-3 {
+  padding-left: 2rem;
+}
+
+[data-theme="dark"] .page-breakdown-toc-mobile {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .page-breakdown-toc-sidebar {
+  background: var(--bg-secondary);
+  border-right-color: var(--border-color);
+}
+
+[data-theme="dark"] .page-breakdown-toc-header {
+  border-bottom-color: var(--border-color);
+}
+
+[data-theme="dark"] .page-breakdown-toc-close {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .page-breakdown-toc-close:hover {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .page-breakdown-toc-title {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .page-breakdown-toc-item a {
+  color: #a5b4fc;
+}
+
+[data-theme="dark"] .page-breakdown-toc-item a:hover {
+  color: #c4b5fd;
+}
+
+@media (min-width: 768px) {
+  .page-breakdown-toc-mobile {
+    display: none;
+  }
+
+  .page-breakdown-toc-sidebar {
+    display: block;
+  }
+}
+
+@media (max-width: 767px) {
+  .page-breakdown-toc-mobile {
+    display: block;
+  }
+
+  .page-breakdown-toc-sidebar {
+    display: none !important;
+  }
+
+  .page-breakdown-toc-toggle {
+    display: none;
+  }
+}
+
+/* Related papers */
+.page-breakdown-related {
+  margin-top: 2rem;
+  padding: 1.25rem;
+  background: #f8fafc;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+}
+
+.page-breakdown-related-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 0.75rem 0;
+}
+
+.page-breakdown-related-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.page-breakdown-related-list li {
+  margin: 0.35rem 0;
+}
+
+.page-breakdown-related-link {
+  color: slateblue;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.page-breakdown-related-link:hover {
+  text-decoration: underline;
+}
+
+[data-theme="dark"] .page-breakdown-related {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .page-breakdown-related-title {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .page-breakdown-related-link {
+  color: #a5b4fc;
+}
+
+[data-theme="dark"] .page-breakdown-related-link:hover {
+  color: #c4b5fd;
+}
+
+@media screen and (max-width: 768px) {
+  .page-breakdown-container.page-container {
+    padding: 0.5rem;
+  }
+
+  .page-breakdown-markdown {
+    padding: 1rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .page-breakdown-container.page-container {
+    margin-top: 4rem;
+  }
+
+  .page-breakdown-markdown table {
+    font-size: 0.875rem;
+  }
+}
+
+/* Tags page – unique prefix: page-tags- */
+
+.page-tags-container {
+  overflow-y: auto;
+  margin-top: 25px;
+}
+
+.page-tags-title {
+  margin-bottom: 0.5rem;
+}
+
+.page-tags-description {
+  margin-bottom: 1.5rem;
+  padding-left: 2rem;
+  color: var(--text-secondary, #4b5563);
+  font-size: 1rem;
+}
+
+[data-theme="dark"] .page-tags-title {
+  color: #a5b4fc;
+}
+
+[data-theme="dark"] .page-tags-description {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .page-tags-back-link a {
+  color: #a5b4fc;
+}
+
+[data-theme="dark"] .page-tags-back-link a:hover {
+  color: #c4b5fd;
+}
+
+.page-tags-list-grid {
+  margin-top: 1rem;
+}
+
+.page-tags-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.page-tags-card-content {
+  padding: 1rem;
+  background: var(--bg-secondary, #ffffff);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow, 0 4px 6px rgba(0, 0, 0, 0.1));
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme="dark"] .page-tags-card-content {
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.page-tags-card-info {
+  padding: 0.5rem 0;
+}
+
+.page-tags-tags-row {
+  margin-bottom: 0.5rem;
+}
+
+.page-tags-back-link {
+  margin-top: 2rem;
+  padding-left: 2rem;
+}
+
+.page-tags-back-link a {
+  color: slateblue;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.page-tags-back-link a:hover {
+  text-decoration: underline;
+}
+
+@media screen and (max-width: 768px) {
+  .page-tags-container.page-container {
+    padding: 0.5rem;
+  }
+}
+</style><link rel="stylesheet" href="https://stackedit.io/style.css"><title>Reasoning in LLMs - The Role of Test-Time Compute - Shristi Gautam</title><script>
+      // Initialize theme immediately to prevent flash (default: dark)
+      (function() {
+        const saved = localStorage.getItem('theme');
+        const theme = saved || 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script><link rel="stylesheet" href="/_astro/index.C203pqpV.css">
+<link rel="stylesheet" href="/_astro/_slug_.BI-nSYCv.css"></head> <body>  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Reasoning in LLMs - The Role of Test-Time Compute","description":"Concepts and techniques for reasoning in large language models—reasoning in LLMs vs reasoning LLMs, scaling, and search strategies.","image":"https://shris-ai.github.io/notes/reasoning-models-2025/cover_image.png","author":{"@type":"Person","name":"Shristi Gautam","url":"https://shris-ai.github.io","sameAs":["https://www.linkedin.com/in/shristigautam/","https://github.com/shris-ai"]},"publisher":{"@type":"Person","name":"Shristi Gautam","url":"https://shris-ai.github.io"},"datePublished":"2025-02-02T00:00:00.000Z","dateModified":"2025-02-02T00:00:00.000Z","timeRequired":"PT13M","mainEntityOfPage":{"@type":"WebPage","@id":"https://shris-ai.github.io/notes/reasoning-models-2025"},"keywords":"AI, Reasoning Models, Test-time Compute","articleSection":"Blog","inLanguage":"en"}</script> <nav class="topbar"> <div class="topbar__container"> <div class="topbar__content"> <a href="/" class="topbar__title-wrap"> <div class="topbar__title topbar__title--hindi">सृष्टि</div> <div class="topbar__title">|</div> <div class="topbar__title">Shristi Gautam</div> </a> <div class="topbar__links"> <a href="/notes" class="topbar__link" title="Blog" aria-label="Blog"> <span class="topbar__icon"> <style>astro-island,astro-slot,astro-static-slot{display:contents}</style><script>(()=>{var e=async t=>{await(await t())()};(self.Astro||(self.Astro={})).load=e;window.dispatchEvent(new Event("astro:load"));})();;(()=>{var A=Object.defineProperty;var g=(i,o,a)=>o in i?A(i,o,{enumerable:!0,configurable:!0,writable:!0,value:a}):i[o]=a;var d=(i,o,a)=>g(i,typeof o!="symbol"?o+"":o,a);{let i={0:t=>m(t),1:t=>a(t),2:t=>new RegExp(t),3:t=>new Date(t),4:t=>new Map(a(t)),5:t=>new Set(a(t)),6:t=>BigInt(t),7:t=>new URL(t),8:t=>new Uint8Array(t),9:t=>new Uint16Array(t),10:t=>new Uint32Array(t),11:t=>1/0*t},o=t=>{let[l,e]=t;return l in i?i[l](e):void 0},a=t=>t.map(o),m=t=>typeof t!="object"||t===null?t:Object.fromEntries(Object.entries(t).map(([l,e])=>[l,o(e)]));class y extends HTMLElement{constructor(){super(...arguments);d(this,"Component");d(this,"hydrator");d(this,"hydrate",async()=>{var b;if(!this.hydrator||!this.isConnected)return;let e=(b=this.parentElement)==null?void 0:b.closest("astro-island[ssr]");if(e){e.addEventListener("astro:hydrate",this.hydrate,{once:!0});return}let c=this.querySelectorAll("astro-slot"),n={},h=this.querySelectorAll("template[data-astro-template]");for(let r of h){let s=r.closest(this.tagName);s!=null&&s.isSameNode(this)&&(n[r.getAttribute("data-astro-template")||"default"]=r.innerHTML,r.remove())}for(let r of c){let s=r.closest(this.tagName);s!=null&&s.isSameNode(this)&&(n[r.getAttribute("name")||"default"]=r.innerHTML)}let p;try{p=this.hasAttribute("props")?m(JSON.parse(this.getAttribute("props"))):{}}catch(r){let s=this.getAttribute("component-url")||"<unknown>",v=this.getAttribute("component-export");throw v&&(s+=` (export ${v})`),console.error(`[hydrate] Error parsing props for component ${s}`,this.getAttribute("props"),r),r}let u;await this.hydrator(this)(this.Component,p,n,{client:this.getAttribute("client")}),this.removeAttribute("ssr"),this.dispatchEvent(new CustomEvent("astro:hydrate"))});d(this,"unmount",()=>{this.isConnected||this.dispatchEvent(new CustomEvent("astro:unmount"))})}disconnectedCallback(){document.removeEventListener("astro:after-swap",this.unmount),document.addEventListener("astro:after-swap",this.unmount,{once:!0})}connectedCallback(){if(!this.hasAttribute("await-children")||document.readyState==="interactive"||document.readyState==="complete")this.childrenConnectedCallback();else{let e=()=>{document.removeEventListener("DOMContentLoaded",e),c.disconnect(),this.childrenConnectedCallback()},c=new MutationObserver(()=>{var n;((n=this.lastChild)==null?void 0:n.nodeType)===Node.COMMENT_NODE&&this.lastChild.nodeValue==="astro:end"&&(this.lastChild.remove(),e())});c.observe(this,{childList:!0}),document.addEventListener("DOMContentLoaded",e)}}async childrenConnectedCallback(){let e=this.getAttribute("before-hydration-url");e&&await import(e),this.start()}async start(){let e=JSON.parse(this.getAttribute("opts")),c=this.getAttribute("client");if(Astro[c]===void 0){window.addEventListener(`astro:${c}`,()=>this.start(),{once:!0});return}try{await Astro[c](async()=>{let n=this.getAttribute("renderer-url"),[h,{default:p}]=await Promise.all([import(this.getAttribute("component-url")),n?import(n):()=>()=>{}]),u=this.getAttribute("component-export")||"default";if(!u.includes("."))this.Component=h[u];else{this.Component=h;for(let f of u.split("."))this.Component=this.Component[f]}return this.hydrator=p,this.hydrate},e,this)}catch(n){console.error(`[astro-island] Error hydrating ${this.getAttribute("component-url")}`,n)}}attributeChangedCallback(){this.hydrate()}}d(y,"observedAttributes",["props"]),customElements.get("astro-island")||customElements.define("astro-island",y)}})();</script><astro-island uid="Ze9quo" prefix="r7" component-url="/_astro/Icon.nMp85cCJ.js" component-export="default" renderer-url="/_astro/client.BxbdTftP.js" props="{&quot;name&quot;:[0,&quot;notes&quot;]}" ssr="" client="load" opts="{&quot;name&quot;:&quot;Icon&quot;,&quot;value&quot;:true}" await-children=""><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="20px" width="20px" xmlns="http://www.w3.org/2000/svg"><path fill="none" stroke-width="2" d="M3,1 L3,23 L16,23 L21,18 L21,1 L3,1 Z M6,17 L11,17 M6,13 L18,13 M6,9 L16,9 M3,5 L21,5 M21,17 L15,17 L15,23"></path></svg><!--astro:end--></astro-island> </span> </a> <a href="/labs" class="topbar__link" title="Labs" aria-label="Labs"> <span class="topbar__icon"> <astro-island uid="Z1YSPDK" prefix="r8" component-url="/_astro/Icon.nMp85cCJ.js" component-export="default" renderer-url="/_astro/client.BxbdTftP.js" props="{&quot;name&quot;:[0,&quot;lab&quot;]}" ssr="" client="load" opts="{&quot;name&quot;:&quot;Icon&quot;,&quot;value&quot;:true}" await-children=""><svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.1" viewBox="0 0 16 16" height="20px" width="20px" xmlns="http://www.w3.org/2000/svg"><path d="M14.942 12.57l-4.942-8.235v-3.335h0.5c0.275 0 0.5-0.225 0.5-0.5s-0.225-0.5-0.5-0.5h-5c-0.275 0-0.5 0.225-0.5 0.5s0.225 0.5 0.5 0.5h0.5v3.335l-4.942 8.235c-1.132 1.886-0.258 3.43 1.942 3.43h10c2.2 0 3.074-1.543 1.942-3.43zM3.766 10l3.234-5.39v-3.61h2v3.61l3.234 5.39h-8.468z"></path></svg><!--astro:end--></astro-island> </span> </a> <a href="/paper-dive-ins" class="topbar__link" title="Paper Dive-Ins" aria-label="Paper Dive-Ins"> <span class="topbar__icon"> <astro-island uid="Zs3olg" prefix="r9" component-url="/_astro/Icon.nMp85cCJ.js" component-export="default" renderer-url="/_astro/client.BxbdTftP.js" props="{&quot;name&quot;:[0,&quot;paper&quot;]}" ssr="" client="load" opts="{&quot;name&quot;:&quot;Icon&quot;,&quot;value&quot;:true}" await-children=""><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" aria-hidden="true" height="20px" width="20px" xmlns="http://www.w3.org/2000/svg"><path d="M11.625 16.5a1.875 1.875 0 1 0 0-3.75 1.875 1.875 0 0 0 0 3.75Z"></path><path fill-rule="evenodd" d="M5.625 1.5H9a3.75 3.75 0 0 1 3.75 3.75v1.875c0 1.036.84 1.875 1.875 1.875H16.5a3.75 3.75 0 0 1 3.75 3.75v7.875c0 1.035-.84 1.875-1.875 1.875H5.625a1.875 1.875 0 0 1-1.875-1.875V3.375c0-1.036.84-1.875 1.875-1.875Zm6 16.5c.66 0 1.277-.19 1.797-.518l1.048 1.048a.75.75 0 0 0 1.06-1.06l-1.047-1.048A3.375 3.375 0 1 0 11.625 18Z" clip-rule="evenodd"></path><path d="M14.25 5.25a5.23 5.23 0 0 0-1.279-3.434 9.768 9.768 0 0 1 6.963 6.963A5.23 5.23 0 0 0 16.5 7.5h-1.875a.375.375 0 0 1-.375-.375V5.25Z"></path></svg><!--astro:end--></astro-island> </span> </a> <a href="/newsletter" class="topbar__link" title="Newsletter – In the Margins of AI" aria-label="Newsletter"> <span class="topbar__icon"> <astro-island uid="Z2nlYPw" prefix="r10" component-url="/_astro/Icon.nMp85cCJ.js" component-export="default" renderer-url="/_astro/client.BxbdTftP.js" props="{&quot;name&quot;:[0,&quot;newsletter&quot;]}" ssr="" client="load" opts="{&quot;name&quot;:&quot;Icon&quot;,&quot;value&quot;:true}" await-children=""><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" aria-hidden="true" height="20px" width="20px" xmlns="http://www.w3.org/2000/svg"><path d="M1.5 8.67v8.58a3 3 0 0 0 3 3h15a3 3 0 0 0 3-3V8.67l-8.928 5.493a3 3 0 0 1-3.144 0L1.5 8.67Z"></path><path d="M22.5 6.908V6.75a3 3 0 0 0-3-3h-15a3 3 0 0 0-3 3v.158l9.714 5.978a1.5 1.5 0 0 0 1.572 0L22.5 6.908Z"></path></svg><!--astro:end--></astro-island> </span> </a> <a href="/" class="topbar__link" title="About" aria-label="About"> <span class="topbar__icon"> <astro-island uid="Z1Ofu4i" prefix="r11" component-url="/_astro/Icon.nMp85cCJ.js" component-export="default" renderer-url="/_astro/client.BxbdTftP.js" props="{&quot;name&quot;:[0,&quot;contact&quot;]}" ssr="" client="load" opts="{&quot;name&quot;:&quot;Icon&quot;,&quot;value&quot;:true}" await-children=""><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="20px" width="20px" xmlns="http://www.w3.org/2000/svg"><path d="M256 48C141.6 48 48 141.6 48 256s93.6 208 208 208 208-93.6 208-208S370.4 48 256 48zm0 62.4c34.3 0 62.4 28.1 62.4 62.4s-28.1 62.4-62.4 62.4-62.4-28.1-62.4-62.4 28.1-62.4 62.4-62.4zm0 300.4c-52 0-97.8-27-124.8-66.6 1-41.6 83.2-64.5 124.8-64.5s123.8 22.9 124.8 64.5c-27 39.5-72.8 66.6-124.8 66.6z"></path></svg><!--astro:end--></astro-island> </span> </a> <button type="button" class="topbar__link topbar__theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode"> <span class="topbar__icon topbar__icon--moon"> <astro-island uid="8vhT8" prefix="r12" component-url="/_astro/Icon.nMp85cCJ.js" component-export="default" renderer-url="/_astro/client.BxbdTftP.js" props="{&quot;name&quot;:[0,&quot;moon&quot;]}" ssr="" client="load" opts="{&quot;name&quot;:&quot;Icon&quot;,&quot;value&quot;:true}" await-children=""><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" aria-hidden="true" height="20px" width="20px" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 0 1 .162.819A8.97 8.97 0 0 0 9 6a9 9 0 0 0 9 9 8.97 8.97 0 0 0 3.463-.69.75.75 0 0 1 .981.98 10.503 10.503 0 0 1-9.694 6.46c-5.799 0-10.5-4.7-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 0 1 .818.162Z" clip-rule="evenodd"></path></svg><!--astro:end--></astro-island> </span> <span class="topbar__icon topbar__icon--sun" style="display: none;"> <astro-island uid="Z8meGn" prefix="r13" component-url="/_astro/Icon.nMp85cCJ.js" component-export="default" renderer-url="/_astro/client.BxbdTftP.js" props="{&quot;name&quot;:[0,&quot;sun&quot;]}" ssr="" client="load" opts="{&quot;name&quot;:&quot;Icon&quot;,&quot;value&quot;:true}" await-children=""><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" aria-hidden="true" height="20px" width="20px" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM18.894 6.166a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 1 0 1.06 1.061l1.591-1.59ZM21.75 12a.75.75 0 0 1-.75.75h-2.25a.75.75 0 0 1 0-1.5H21a.75.75 0 0 1 .75.75ZM17.834 18.894a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 1 0-1.061 1.06l1.59 1.591ZM12 18a.75.75 0 0 1 .75.75V21a.75.75 0 0 1-1.5 0v-2.25A.75.75 0 0 1 12 18ZM7.758 17.303a.75.75 0 0 0-1.061-1.06l-1.591 1.59a.75.75 0 0 0 1.06 1.061l1.591-1.59ZM6 12a.75.75 0 0 1-.75.75H3a.75.75 0 0 1 0-1.5h2.25A.75.75 0 0 1 6 12ZM6.697 7.757a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 0 0-1.061 1.06l1.59 1.591Z"></path></svg><!--astro:end--></astro-island> </span> </button> </div> </div> </div> </nav> <script>
+  (function() {
+    const themeToggle = document.getElementById('theme-toggle');
+    const getTheme = function() {
+      const saved = localStorage.getItem('theme');
+      return saved || 'dark';
+    };
+    const setTheme = function(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      if (themeToggle) themeToggle.setAttribute('data-theme', theme);
+    };
+    setTheme(getTheme());
+    themeToggle && themeToggle.addEventListener('click', function() {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      setTheme(current === 'dark' ? 'light' : 'dark');
+    });
+  })();
+</script> <nav class="breadcrumb" aria-label="Breadcrumb"> <div class="breadcrumb__inner"> <a href="/">Home</a><span class="breadcrumb__separator">›</span><a href="/notes">Blog</a><span class="breadcrumb__separator">›</span><span class="breadcrumb__current" aria-current="page"> Reasoning in LLMs - The Role of Test-Time Compute </span> </div> </nav> <div class="page-container page-breakdown-container"> <div class="page-breakdown-title-meta app-struct"> <h1 class="page-title page-title--no-top-margin">Reasoning in LLMs - The Role of Test-Time Compute</h1> <div class="page-breakdown-meta-row"> <span class="page-breakdown-reading-time" aria-label="Estimated reading time"> 13 min read
+</span> <span class="page-breakdown-tags-inline"> <a href="/tags/ai" class="shared-tag-link" style="--tag-bg: #fef9c3; --tag-text: #854d0e; --tag-hover: #fef08a;"> AI </a><a href="/tags/reasoning-models" class="shared-tag-link" style="--tag-bg: #fde2e4; --tag-text: #7f1d1d; --tag-hover: #fbc2c7;"> Reasoning Models </a><a href="/tags/test-time-compute" class="shared-tag-link" style="--tag-bg: #fecdd3; --tag-text: #991b1b; --tag-hover: #fda4af;"> Test-time Compute </a> </span> </div> <dl class="page-breakdown-meta-details"> <div class="page-breakdown-meta-detail"> <dt>Published</dt> <dd>Feb 2, 2025</dd> </div> </dl> </div> <nav class="page-breakdown-toc-mobile" aria-label="Table of contents"> <h2 class="page-breakdown-toc-title">On this page</h2> <ul class="page-breakdown-toc-list"> <li class="page-breakdown-toc-item page-breakdown-toc-level-2"> <a href="#concepts-related-to-reasoning-and-llms">Concepts related to ‘Reasoning’ and ‘LLMs’</a> </li><li class="page-breakdown-toc-item page-breakdown-toc-level-2"> <a href="#why-test-time-compute-and-not-train-time-compute">Why test-time compute and not train-time compute?</a> </li><li class="page-breakdown-toc-item page-breakdown-toc-level-3"> <a href="#train-time-compute">Train-time Compute</a> </li><li class="page-breakdown-toc-item page-breakdown-toc-level-3"> <a href="#test-time-compute">Test-time Compute</a> </li><li class="page-breakdown-toc-item page-breakdown-toc-level-2"> <a href="#test-time-compute-implementation-strategies">Test-time Compute Implementation Strategies</a> </li><li class="page-breakdown-toc-item page-breakdown-toc-level-3"> <a href="#using-verifiers-to-scale-test-time-compute">Using verifiers to scale test-time compute</a> </li><li class="page-breakdown-toc-item page-breakdown-toc-level-4"> <a href="#majority-voting">Majority Voting</a> </li><li class="page-breakdown-toc-item page-breakdown-toc-level-4"> <a href="#best-of-n-weighted-search">Best-of-N Weighted Search</a> </li><li class="page-breakdown-toc-item page-breakdown-toc-level-4"> <a href="#beam-search">Beam Search</a> </li><li class="page-breakdown-toc-item page-breakdown-toc-level-3"> <a href="#modifying-the-proposal-distribution">Modifying the Proposal Distribution</a> </li><li class="page-breakdown-toc-item page-breakdown-toc-level-4"> <a href="#parallel-vs-sequential-test-time-compute">Parallel vs. Sequential Test-Time Compute</a> </li> </ul> </nav> <div class="page-breakdown-content-wrapper app-struct" id="content-wrapper"> <nav class="page-breakdown-toc-sidebar" id="toc-sidebar" aria-label="Table of contents"> <div class="page-breakdown-toc-header"> <h2 class="page-breakdown-toc-title">On this page</h2> <button class="page-breakdown-toc-close" id="toc-close" aria-label="Close table of contents">
+×
+</button> </div> <ul class="page-breakdown-toc-list"> <li class="page-breakdown-toc-item page-breakdown-toc-level-2"> <a href="#concepts-related-to-reasoning-and-llms">Concepts related to ‘Reasoning’ and ‘LLMs’</a> </li><li class="page-breakdown-toc-item page-breakdown-toc-level-2"> <a href="#why-test-time-compute-and-not-train-time-compute">Why test-time compute and not train-time compute?</a> </li><li class="page-breakdown-toc-item page-breakdown-toc-level-3"> <a href="#train-time-compute">Train-time Compute</a> </li><li class="page-breakdown-toc-item page-breakdown-toc-level-3"> <a href="#test-time-compute">Test-time Compute</a> </li><li class="page-breakdown-toc-item page-breakdown-toc-level-2"> <a href="#test-time-compute-implementation-strategies">Test-time Compute Implementation Strategies</a> </li><li class="page-breakdown-toc-item page-breakdown-toc-level-3"> <a href="#using-verifiers-to-scale-test-time-compute">Using verifiers to scale test-time compute</a> </li><li class="page-breakdown-toc-item page-breakdown-toc-level-4"> <a href="#majority-voting">Majority Voting</a> </li><li class="page-breakdown-toc-item page-breakdown-toc-level-4"> <a href="#best-of-n-weighted-search">Best-of-N Weighted Search</a> </li><li class="page-breakdown-toc-item page-breakdown-toc-level-4"> <a href="#beam-search">Beam Search</a> </li><li class="page-breakdown-toc-item page-breakdown-toc-level-3"> <a href="#modifying-the-proposal-distribution">Modifying the Proposal Distribution</a> </li><li class="page-breakdown-toc-item page-breakdown-toc-level-4"> <a href="#parallel-vs-sequential-test-time-compute">Parallel vs. Sequential Test-Time Compute</a> </li> </ul> </nav> <div class="page-breakdown-markdown"> <button class="page-breakdown-toc-toggle" id="toc-toggle" aria-label="Toggle table of contents" aria-expanded="false"> <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"> <line x1="3" y1="6" x2="21" y2="6"></line> <line x1="3" y1="12" x2="21" y2="12"></line> <line x1="3" y1="18" x2="21" y2="18"></line> </svg> </button> <p>I haven’t been as hooked on the introduction of large language models (we all kind of saw it coming!) as I have been on making them smarter with reasoning capabilities.</p>
+<p>When I think about reasoning, it’s not just about solving a complex mathematical problem—it’s about thinking through it iteratively, much like how humans do.</p>
+<p>So, when we ask an LLM a question like this, the expectation isn’t just the final answer, <strong>84</strong>:</p>
+<blockquote>
+<p>User: <em>Anita sold clips to 56 of her friends in April, and then she sold half as many clips in May. How many clips did Anita sell altogether in April and May?</em>
+Model: 84</p>
+</blockquote>
+<p>Instead, the real expectation is <strong>a transparent, step-by-step reasoning process</strong>—a way to see the model think through the problem.</p>
+<blockquote>
+<p>User: <em>Anita sold clips to 56 of her friends in April, and then she sold half as many clips in May. How many clips did Anita sell altogether in April and May?</em></p>
+<p>Model:
+&#x3C;think>
+First, I note that Anita sold 56 clips in April.
+Next, the number of clips she sold in May is half of what she sold in April. To find this amount, I calculate half of 56, which is 28.
+Finally, to determine the total number of clips sold in both months, I add the number from April and May: 56 plus 28 equals 84.
+&#x3C;/think>
+Let’s determine how many clips Anita sold in <strong>April</strong> and <strong>May</strong>, and then find the total number of clips she sold altogether.
+<strong>Clips Sold in April:</strong> Anita sold <strong>56</strong> clips to her friends in April. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>l</mi><mi>i</mi><mi>p</mi><msub><mi>s</mi><mrow><mi>A</mi><mi>p</mi><mi>r</mi><mi>i</mi><mi>l</mi></mrow></msub><mo>=</mo><mn>56</mn></mrow><annotation encoding="application/x-tex">Clips_{April} = 56</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9805em;vertical-align:-0.2861em;"></span><span class="mord mathnormal" style="margin-right:0.01968em;">Cl</span><span class="mord mathnormal">i</span><span class="mord mathnormal">p</span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">A</span><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mord mathnormal mtight">i</span><span class="mord mathnormal mtight" style="margin-right:0.01968em;">l</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">56</span></span></span></span>
+<strong>Clips Sold in May:</strong> Anita sold <strong>half as many clips</strong> in <strong>May</strong> compared to April. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>l</mi><mi>i</mi><mi>p</mi><msub><mi>s</mi><mrow><mi>M</mi><mi>a</mi><mi>y</mi></mrow></msub><mo>=</mo><mfrac><mrow><mi>C</mi><mi>l</mi><mi>i</mi><mi>p</mi><msub><mi>s</mi><mrow><mi>A</mi><mi>p</mi><mi>r</mi><mi>i</mi><mi>l</mi></mrow></msub></mrow><mn>2</mn></mfrac><mo>=</mo><mfrac><mn>56</mn><mn>2</mn></mfrac><mo>=</mo><mn>28</mn></mrow><annotation encoding="application/x-tex">Clips_{May} = \frac{Clips_{April}}{2} = \frac{56}{2} = 28</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9805em;vertical-align:-0.2861em;"></span><span class="mord mathnormal" style="margin-right:0.01968em;">Cl</span><span class="mord mathnormal">i</span><span class="mord mathnormal">p</span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10903em;">M</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.03588em;">y</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.3442em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9992em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.5131em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.01968em;">Cl</span><span class="mord mathnormal mtight">i</span><span class="mord mathnormal mtight">p</span><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">A</span><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mord mathnormal mtight">i</span><span class="mord mathnormal mtight" style="margin-right:0.01968em;">l</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2901em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.1901em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">56</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">28</span></span></span></span>
+<strong>Total Clips Sold in April and May:</strong> To find the total number of clips sold, add the clips sold in both months. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>l</mi><mi>i</mi><mi>p</mi><msub><mi>s</mi><mrow><mi>T</mi><mi>o</mi><mi>t</mi><mi>a</mi><mi>l</mi></mrow></msub><mo>=</mo><mi>C</mi><mi>l</mi><mi>i</mi><mi>p</mi><msub><mi>s</mi><mrow><mi>A</mi><mi>p</mi><mi>r</mi><mi>i</mi><mi>l</mi></mrow></msub><mo>+</mo><mi>C</mi><mi>l</mi><mi>i</mi><mi>p</mi><msub><mi>s</mi><mrow><mi>M</mi><mi>a</mi><mi>y</mi></mrow></msub><mo>=</mo><mn>56</mn><mo>+</mo><mn>28</mn><mo>=</mo><mn>84</mn></mrow><annotation encoding="application/x-tex">Clips_{Total} = Clips_{April} + Clips_{May} = 56 + 28 = 84</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.01968em;">Cl</span><span class="mord mathnormal">i</span><span class="mord mathnormal">p</span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.01968em;">l</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.9805em;vertical-align:-0.2861em;"></span><span class="mord mathnormal" style="margin-right:0.01968em;">Cl</span><span class="mord mathnormal">i</span><span class="mord mathnormal">p</span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">A</span><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mord mathnormal mtight">i</span><span class="mord mathnormal mtight" style="margin-right:0.01968em;">l</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.9805em;vertical-align:-0.2861em;"></span><span class="mord mathnormal" style="margin-right:0.01968em;">Cl</span><span class="mord mathnormal">i</span><span class="mord mathnormal">p</span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10903em;">M</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.03588em;">y</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">56</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">28</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">84</span></span></span></span>
+<strong>Final Answer:</strong> Anita sold a total of <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><menclose notation="box"><mstyle scriptlevel="0" displaystyle="false"><mstyle scriptlevel="0" displaystyle="false"><mstyle scriptlevel="0" displaystyle="true"><mn>84</mn></mstyle></mstyle></mstyle></menclose></mrow><annotation encoding="application/x-tex">\boxed{84}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.3244em;vertical-align:-0.34em;"></span><span class="mord"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9844em;"><span style="top:-3.3244em;"><span class="pstrut" style="height:3.3244em;"></span><span class="boxpad"><span class="mord"><span class="mord"><span class="mord">84</span></span></span></span></span><span style="top:-2.9844em;"><span class="pstrut" style="height:3.3244em;"></span><span class="stretchy fbox" style="height:1.3244em;border-style:solid;border-width:0.04em;"></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.34em;"><span></span></span></span></span></span></span></span></span> clips in April and May.</p>
+</blockquote>
+<p>People are now familiar with this step-by-step reasoning approach, thanks to the viral release of Deepseek R1 and v3.</p>
+<p>However, let me tell you—reasoning models didn’t develop overnight. It took years of iterative research to get to this moment. And step-by-step reasoning isn’t the only way LLMs can think through problems.</p>
+<h2 id="concepts-related-to-reasoning-and-llms">Concepts related to ‘Reasoning’ and ‘LLMs’</h2>
+<p>When I talk about <code>Reasoning</code> and <code>LLMs</code>, I’d always say that there are two related but distinct concepts associated with it:</p>
+<ul>
+<li><strong><code>Reasoning in LLMs</code></strong>: Studying and enhancing reasoning within existing models.</li>
+<li><strong><code>Reasoning LLMs</code></strong>: LLMs built with strong reasoning abilities as a core feature.</li>
+</ul>
+<p>Here’s a table comparing <strong>Reasoning in LLMs</strong> and <strong>Reasoning LLMs</strong>:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Feature</th><th><strong>Reasoning in LLMs</strong></th><th><strong>Reasoning LLMs</strong></th></tr></thead><tbody><tr><td><strong>Definition</strong></td><td>The process and techniques used by LLMs to reason.</td><td>LLMs designed with strong built-in reasoning capabilities.</td></tr><tr><td><strong>Focus</strong></td><td>Improving how LLMs handle logical, step-by-step thinking.</td><td>Building LLMs that inherently reason like humans.</td></tr><tr><td><strong>Techniques</strong></td><td>Chain-of-Thought (CoT), Tree-of-Thought (ToT), Layer-of-Thought (LoT), self-consistency.</td><td>Architectural modifications, external memory integration, fine-tuning on reasoning tasks.</td></tr><tr><td><strong>Example</strong></td><td>Using CoT prompting to improve math problem-solving in GPT-4.</td><td>Developing an LLM that autonomously generates scientific hypotheses.</td></tr><tr><td><strong>Research Goal</strong></td><td>Enhancing reasoning as an emergent ability in existing LLMs.</td><td>Designing LLMs that are inherently better at reasoning without heavy prompting.</td></tr><tr><td><strong>Dependency</strong></td><td>Often requires prompting strategies or additional training.</td><td>More independent, with reasoning embedded in its core design.</td></tr></tbody></table>
+<p>Now, they may be distinct in their differences, but they converge in their similarity.</p>
+<p>A prominent similarity between both “Reasoning in LLMs” and “Reasoning LLMs” is that they both leverage <strong>scaling test-time compute</strong>. This means that, regardless of whether reasoning is an emergent capability refined through prompting strategies (reasoning in LLMs) or is embedded as a core design feature (reasoning LLMs), the performance and effectiveness of the reasoning process tend to improve as more computational resources are allocated during inference.</p>
+<p>But why inference? Why not optimize reasoning during training instead?</p>
+<h2 id="why-test-time-compute-and-not-train-time-compute">Why test-time compute and not train-time compute?</h2>
+<p>To understand why reasoning in LLMs benefits more from test-time compute rather than train-time compute, we first need to examine how compute affects model performance during training.</p>
+<h3 id="train-time-compute">Train-time Compute</h3>
+<p>Back in 2020, the paper <em>Scaling Laws for Neural Language Models</em> introduced a fundamental insight: the performance of a language model is governed by three key factors—<strong>compute budget, model size, and dataset size</strong>. The researchers discovered <strong>a power-law relationship</strong> between these factors, meaning that increasing one requires proportional adjustments in the others to maintain efficiency.</p>
+<p>The key findings in this paper suggest:</p>
+<ol>
+<li>
+<p><strong>More compute → Larger models and bigger datasets</strong><br>
+If you have more computational resources, you should increase both <strong>model size (number of parameters)</strong> and <strong>dataset size (amount of training text)</strong> in a balanced way.</p>
+</li>
+<li>
+<p><strong>More parameters alone doesn’t help if the dataset is too small</strong><br>
+If you scale up a model without increasing the dataset, the model will <strong>overfit</strong> (memorize training data instead of generalizing).</p>
+</li>
+<li>
+<p><strong>More data alone doesn’t help if the model is too small</strong><br>
+If you increase the dataset size without increasing model size, the model won’t be able to fully utilize the extra data.</p>
+</li>
+<li>
+<p><strong>Optimal scaling follows a predictable formula</strong><br>
+The paper derives scaling laws showing how compute (C), model size (N), and dataset size (D) interact:</p>
+</li>
+</ol>
+<p><img src="/notes/reasoning-models-2025/ReasoningModels_KaplansScalingLaw.png" alt="Kaplan&#x27;s scaling law"></p>
+<p>( C \propto N^{\alpha} D^{\beta} ) where <strong>α and β</strong> are scaling exponents determined empirically.</p>
+<p>More often than not, compute budget is a big constraint. Training massive models with 100B+ parameters requires enormous financial resources.</p>
+<p>The graph from “Language Models are Few-Shot Learners” shows the compute used during training for BERT, T5, and GPT-3 variants.</p>
+<p><img src="/notes/reasoning-models-2025/ReasoningModels_ComputationalCostInPetaFLOPs.png" alt="Computational cost in petaFLOPs"></p>
+<p>To put this in perspective:</p>
+<ul>
+<li>1 petaFLOP/s = 1 quadrillion floating-point operations per second.</li>
+<li>1 petaFLOP/s-day is the compute used by running at 1 petaFLOP/s for 24 hours.</li>
+</ul>
+<p>Approximating from the graph, GPT-3 (175B parameters) required 4000 petaFLOP/s-days, this means continuously running the machine for ( 24 * 60 * 60 * 4000 = 345.6 * 10^{-6} ) (345 million seconds).</p>
+<p>This gives us an idea of the massive computational cost of training large-scale language models. The sheer scale of compute required for training models like GPT-3 highlights a fundamental constraint in AI research: <strong>compute is not infinite</strong>. More often than not, it is the biggest bottleneck in training ever-larger models.</p>
+<p>As per the Kaplan’s scaling laws, with compute being limited, we must decide how to allocate it between model size and dataset size. Intuitively, one might think that making the model bigger should lead to better performance. But it’s proven that larger datasets contribute more to generalization than just increasing model size. If we train a small model on a massive dataset, it tends to outperform a large model trained on a small dataset. This happens because a larger dataset allows the model to see a more diverse range of examples, improving its ability to generalize to unseen data.</p>
+<p>This hypothesis was tested in 2022 during training a compute-optimal model: Chinchilla. Chinchilla used the same compute budget as Gopher (280B) but with 70B parameters and 4× more data. Not just that, it also significantly outperformed Gopher (280B), GPT-3 (175B), Jurassic-1 (178B), and Megatron-Turing NLG (530B) on a large range of evaluation tasks.</p>
+<p>While Chinchilla demonstrated that using <strong>more data with a smaller model</strong> leads to better performance, it still followed the conventional approach of using a <strong>fixed amount of compute during inference</strong>.</p>
+<p>But what if, instead of focusing only on making training more efficient, we also optimized how much compute a model uses when generating answers? Rather than relying only on bigger models trained with massive datasets, could we make <strong>smaller models perform better</strong> by allowing them to <strong>use more compute when needed at test time</strong>?</p>
+<p>This challenges the long-standing assumption that “bigger is always better” and suggests that <strong>allocating compute more effectively at inference could be just as important as scaling it during training</strong>.</p>
+<h3 id="test-time-compute">Test-time Compute</h3>
+<p>The key idea behind <strong>test-time compute (TTC)</strong> is that, just like humans take more time to think about harder questions, AI models might improve by <strong>thinking longer</strong> before generating a response during inference.</p>
+<p>If test-time compute can make up for less compute during training, we could create smaller, more efficient models that still perform well. This would make AI systems cheaper, more accessible, and easier to run on devices with limited power.</p>
+<p>A great example of this is OpenAI’s o1 model, which shows that performance improves both when more compute is used during training and when more time is given to think at test time. The graphs below illustrate this:</p>
+<p><img src="/notes/reasoning-models-2025/ReasoningModels_OpenAIo1.png" alt="OpenAI o1"></p>
+<ul>
+<li>The left graph shows that as more compute is used during training, accuracy improves.</li>
+<li>The right graph shows that letting the model think longer at test time also leads to better results.</li>
+</ul>
+<p>By allowing AI to “think more” when needed, we could build models that are both smarter and more efficient, reducing the need for ever-larger models while still achieving high accuracy.</p>
+<p>Since reasoning models think more, now the question is that do they use more tokens?</p>
+<p>Yes! Unlike regular AI models, reasoning models think before they answer, using extra tokens to break down the problem step by step.</p>
+<p>AI models use compute power to generate answers. But if all the compute is spent just producing a final response, it’s not always efficient.</p>
+<p>Instead, reasoning models generate extra tokens first—mapping out relationships, exploring different ideas, and refining their approach. This deeper thinking helps produce a more accurate and well-structured answer.</p>
+<p>More thinking = More tokens = More cost! 💰</p>
+<p>That’s why managing token usage is important when using these models.</p>
+<p>Now, let’s take a look at some of the strategies to implement test-time compute.</p>
+<h2 id="test-time-compute-implementation-strategies">Test-time Compute Implementation Strategies</h2>
+<p>Google DeepMind released a paper in August 2024 in which they explained how to scale test-time compute optimally in LLMs.</p>
+<p>In Test-time computation, the model’s output distribution is modified after it has been trained, allowing for better responses to a given prompt. This can be done in two ways:</p>
+<ol>
+<li><strong>At the input level</strong> – <strong>Modifying the Proposal Distribution</strong> (<em>Modifying the input prompt by adding extra tokens to guide the model toward better responses.</em>)</li>
+<li><strong>At the output level</strong> – <strong>Optimizing the Verifier</strong> (<em>Generating multiple candidate responses and selecting or modifying them using a separate verification process.</em>)</li>
+</ol>
+<h3 id="using-verifiers-to-scale-test-time-compute">Using verifiers to scale test-time compute</h3>
+<p>Verifiers play a crucial role in improving reasoning by ensuring that generated responses are not only correct but also well-structured. Instead of allowing the model to produce a final answer directly, verifiers encourage a more systematic approach by evaluating different reasoning paths. This process can be broken down into two key stages:</p>
+<ol>
+<li>
+<p><strong>Thought Generation:</strong></p>
+<ul>
+<li>Rather than immediately providing an answer, the model first <strong>breaks down the problem into smaller steps</strong>.</li>
+<li>This structured reasoning process helps the model identify key insights before reaching a conclusion.</li>
+</ul>
+</li>
+<li>
+<p><strong>Answer Generation:</strong></p>
+<ul>
+<li>Once thoughts are generated, the model <strong>constructs a final response</strong> based on the validated reasoning steps.</li>
+<li>A verifier ensures that the final answer is logically sound by filtering out incorrect or incomplete solutions.</li>
+</ul>
+</li>
+</ol>
+<p>By incorporating verifiers into this workflow, the model can <strong>iteratively refine</strong> its outputs, leading to more reliable and interpretable reasoning.</p>
+<p>To further improve the verification process, <strong>Process-Reward Models (PRMs)</strong> extend the role of verifiers by evaluating reasoning <strong>at every step</strong>, rather than only at the final answer. PRMs help refine model outputs in the following ways:</p>
+<ul>
+<li>Each reasoning step is <strong>individually assessed</strong>, preventing errors from propagating.</li>
+<li>PRMs provide feedback that <strong>nudges the model toward better logical conclusions</strong> over multiple iterations.</li>
+<li>By filtering out weak intermediate steps early, PRMs make <strong>test-time compute more efficient</strong>.</li>
+</ul>
+<p>While <strong>Process-Reward Models (PRMs)</strong> improve reasoning by scoring each step, their effectiveness depends on <strong>how test-time compute is allocated</strong>. To maximize PRM performance, <strong>different search methods</strong> can be used to refine and select the best possible response. These techniques ensure that <strong>test-time compute is used efficiently</strong> by exploring multiple answer candidates and ranking them systematically.</p>
+<p>PRM-based search methods can be categorized into three approaches:</p>
+<ol>
+<li><strong>Majority Voting:</strong> Selecting the most frequently occurring answer.</li>
+<li><strong>Best-of-N Weighted Search:</strong> Generating multiple responses and picking the best one based on PRM scores.</li>
+<li><strong>Beam Search:</strong> A structured search technique that explores different reasoning paths step by step.</li>
+</ol>
+<p>Each method provides different trade-offs between <strong>accuracy, efficiency, and structured reasoning</strong>.</p>
+<h4 id="majority-voting">Majority Voting</h4>
+<p>Majority Voting selects the most frequently occurring answer from multiple generated responses. It is simple and effective when many independent samples are available but does not evaluate the reasoning process behind each answer.</p>
+<p><img src="/notes/reasoning-models-2025/ReasoningModels_Search_MajorityVoting.png" alt="Majority Voting"></p>
+<h4 id="best-of-n-weighted-search">Best-of-N Weighted Search</h4>
+<p>Best-of-N Weighted Search generates multiple answers independently and selects the best one based on the PRM’s final evaluation score. This method improves selection quality compared to majority voting but does not consider intermediate reasoning steps.</p>
+<p><img src="/notes/reasoning-models-2025/ReasoningModels_Search_BestOfNWeightedSearch.png" alt="Best-of-N Weighted Search"></p>
+<h4 id="beam-search">Beam Search</h4>
+<p>Beam Search systematically explores different reasoning paths by generating multiple candidate steps, scoring them using the PRM, and expanding only the most promising ones. It ensures a structured search process and optimizes test-time compute by refining responses progressively.</p>
+<p><img src="/notes/reasoning-models-2025/ReasoningModels_Search_BeamSearch.png" alt="Beam Search"></p>
+<h3 id="modifying-the-proposal-distribution">Modifying the Proposal Distribution</h3>
+<p>Instead of generating answers once, models can be trained to <strong>revise their own answers iteratively</strong>, improving their accuracy over multiple attempts.</p>
+<p>LLMs can be prompted to correct their own mistakes. However, this approach is ineffective as:</p>
+<ul>
+<li>LLMs Lack True Understanding</li>
+<li>If the model already has flawed reasoning, it may just repeat the same mistakes.</li>
+<li>The model may rephrase rather than truly improve its reasoning.</li>
+<li>There’s no external check to ensure corrections are actually valid.</li>
+</ul>
+<p>Since naive self-correction does not yield substantial improvements, a more <strong>structured test-time compute strategy</strong> is required. This strategy can be categorized into <strong>two key approaches</strong>:</p>
+<h4 id="parallel-vs-sequential-test-time-compute">Parallel vs. Sequential Test-Time Compute</h4>
+<p>Test-time compute can be utilized in two ways:</p>
+<ol>
+<li><strong>Parallel Sampling (Best-of-N):</strong> The model generates multiple solution attempts <strong>independently in parallel</strong>. The best outcome is then selected using specific criteria, such as majority voting or an external reward function.</li>
+<li><strong>Sequential Revisions:</strong> Instead of generating multiple independent responses, the model iteratively <strong>refines</strong> its previous answers. This allows the model to improve step by step, incorporating past attempts into each new revision.</li>
+</ol>
+<p><img src="/notes/reasoning-models-2025/ReasoningModels_ProposalDistribution.png" alt="Proposal distribution"></p>
+<p>Each approach has distinct advantages:</p>
+<ul>
+<li><strong>Parallel Sampling</strong> allows for <strong>exploring multiple diverse solutions</strong> quickly.</li>
+<li><strong>Sequential Revisions</strong> focus on <strong>gradual improvement</strong> of a single solution.</li>
+</ul>
+<p>Since both methods offer complementary benefits, an <strong>optimal strategy</strong> often involves a <strong>hybrid approach</strong>, allocating some compute budget to parallel sampling and some to sequential revisions. This structured approach to test-time compute enables more effective self-improvement than simple prompting alone.</p> </div> </div> <aside class="author-bio"> <div class="author-bio__header"> <img src="/assets/bio_image_1.jpg" alt="Shristi Gautam" class="author-bio__image" width="80" height="80" loading="lazy"> <div class="author-bio__info"> <h3 class="author-bio__name">Shristi Gautam</h3> <p class="author-bio__title">AI Engineering Lead</p> <p class="author-bio__desc">
+I specialize in enterprise AI solutions and research. Exploring the latest in AI.
+</p> <div class="author-bio__links"> <a href="https://www.linkedin.com/in/shristigautam/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">LinkedIn</a> <!-- <a href="https://github.com/shris-ai" target="_blank" rel="noopener noreferrer" aria-label="GitHub">GitHub</a> --> <a href="/">About</a> </div> </div> </div> </aside> </div>  </body></html> <script>
+  (function() {
+    const tocToggle = document.getElementById('toc-toggle');
+    const tocSidebar = document.getElementById('toc-sidebar');
+    const tocClose = document.getElementById('toc-close');
+    const contentWrapper = document.getElementById('content-wrapper');
+    const SIDEBAR_ACTIVE = 'page-breakdown-toc-sidebar--active';
+    const WRAPPER_OPEN = 'page-breakdown-content-wrapper--sidebar-open';
+
+    function openTOC() {
+      if (tocSidebar) tocSidebar.classList.add(SIDEBAR_ACTIVE);
+      if (contentWrapper) contentWrapper.classList.add(WRAPPER_OPEN);
+      if (tocToggle) tocToggle.setAttribute('aria-expanded', 'true');
+    }
+
+    function closeTOC() {
+      if (tocSidebar) tocSidebar.classList.remove(SIDEBAR_ACTIVE);
+      if (contentWrapper) contentWrapper.classList.remove(WRAPPER_OPEN);
+      if (tocToggle) tocToggle.setAttribute('aria-expanded', 'false');
+    }
+
+    if (tocToggle) tocToggle.addEventListener('click', openTOC);
+    if (tocClose) tocClose.addEventListener('click', closeTOC);
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && tocSidebar && tocSidebar.classList.contains(SIDEBAR_ACTIVE)) closeTOC();
+    });
+
+    document.querySelectorAll('.page-breakdown-toc-sidebar .page-breakdown-toc-item a').forEach(function(link) {
+      link.addEventListener('click', function() { setTimeout(closeTOC, 100); });
+    });
+  })();
+</script>
